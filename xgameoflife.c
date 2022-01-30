@@ -246,16 +246,16 @@ draw(int width, int height) {
 	xcb_rectangle_t status_bar_rect = { 0, wnd_size.height - status_bar_height, wnd_size.width, status_bar_height };
 	xcb_poly_fill_rectangle(connection, window, gc_status_bar, 1, &status_bar_rect);
 
-	char hovered_cell_text[16];
-	sprintf(hovered_cell_text, "(%d, %d)", context.hovered_x, context.hovered_y);
-	draw_text(
-		gc_status_text,
-		status_bar_height / 2,
-		wnd_size.height - ((status_bar_height - FONT_HEIGHT) / 2),
-		hovered_cell_text
-	);
-
-	if (!context.paused) {
+	if(context.paused) {
+		char hovered_cell_text[16];
+		sprintf(hovered_cell_text, "(%d, %d)", context.hovered_x, context.hovered_y);
+		draw_text(
+			gc_status_text,
+			status_bar_height / 2,
+			wnd_size.height - ((status_bar_height - FONT_HEIGHT) / 2),
+			hovered_cell_text
+		);
+	} else {
 		draw_text(
 			gc_status_text,
 			wnd_size.width - 7 * FONT_WIDTH - status_bar_height / 2,

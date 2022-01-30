@@ -1,5 +1,5 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+#ifndef __XGAMEOFLIFE_CONFIG_H__
+#define __XGAMEOFLIFE_CONFIG_H__
 
 /* global config */
 const int frames_per_second = 20;

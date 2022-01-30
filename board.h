@@ -1,5 +1,5 @@
-#ifndef __BOARD_H__
-#define __BOARD_H__
+#ifndef __XGAMEOFLIFE_BOARD_H__
+#define __XGAMEOFLIFE_BOARD_H__
 
 #define ROWS 300
 #define COLUMNS 300

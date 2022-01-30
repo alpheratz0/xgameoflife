@@ -1,5 +1,5 @@
-#ifndef __INPUT_H__
-#define __INPUT_H__
+#ifndef __XGAMEOFLIFE_INPUT_H__
+#define __XGAMEOFLIFE_INPUT_H__
 
 enum {
 	MOUSE_LEFT = 1,

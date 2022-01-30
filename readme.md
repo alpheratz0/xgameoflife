@@ -7,8 +7,12 @@ c programming language using xcb (x c binding)
 
 build
 =====
+```sh
 make
+```
 
 install
 =======
+```sh
 sudo make install
+```

@@ -448,7 +448,7 @@ main(void) {
 	set_wm_protocols();
 
 	/* show the window */
-	xcb_void_cookie_t map_window_cookie = xcb_map_window(connection, window);
+	xcb_void_cookie_t map_window_cookie = xcb_map_window_checked(connection, window);
 
 	if (xcb_request_check(connection, map_window_cookie)) {
 		xcb_disconnect(connection);

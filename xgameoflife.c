@@ -378,7 +378,10 @@ key_down(xcb_key_press_event_t *ev) {
 			redraw();
 			break;
 		case KEY_N:
-			/* advance to next generation */
+			if (context.paused) {
+				/* advance to next generation */
+				loop();
+			}
 			break;
 		case KEY_S:
 			/* save the current board */

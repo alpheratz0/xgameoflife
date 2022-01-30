@@ -1,8 +1,8 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#define ROWS 1024
-#define COLUMNS 1024
+#define ROWS 300
+#define COLUMNS 300
 
 struct board {
 	bool cells[ROWS*COLUMNS]; 

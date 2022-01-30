@@ -29,7 +29,6 @@
 #include "board.h"
 
 #define FONT_HEIGHT 8
-#define FONT_WIDTH 6
 
 struct context { 
 	bool paused;
@@ -258,9 +257,9 @@ draw(int width, int height) {
 	} else {
 		draw_text(
 			gc_status_text,
-			wnd_size.width - 7 * FONT_WIDTH - status_bar_height / 2,
+			status_bar_height / 2,
 			wnd_size.height - ((status_bar_height - FONT_HEIGHT) / 2),
-			"RUNNING"
+			"* RUNNING"
 		);
 	}
 

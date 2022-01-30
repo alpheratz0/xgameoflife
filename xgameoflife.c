@@ -271,9 +271,8 @@ redraw(void) {
 	draw(wnd_size.width, wnd_size.height);
 }
 
-
 static void
-loop(void) {
+advance_to_next_generation(void) {
 	int neighbours_alive = 0;
 	struct board board_copy = board; 
 
@@ -301,7 +300,11 @@ loop(void) {
 			}
 		}
 	}
+}
 
+static void
+loop(void) {
+	advance_to_next_generation();
 	redraw();
 }
 
@@ -379,8 +382,8 @@ key_down(xcb_key_press_event_t *ev) {
 			break;
 		case KEY_N:
 			if (context.paused) {
-				/* advance to next generation */
-				loop();
+				advance_to_next_generation();
+				redraw();
 			}
 			break;
 		case KEY_S:

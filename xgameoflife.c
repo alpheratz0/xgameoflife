@@ -500,7 +500,6 @@ main(void) {
 		if (!context.paused) {
 			loop();
 			nanosleep((const struct timespec[]){{0, (1000 * 1000 * 1000) / frames_per_second}}, NULL);
-			/* usleep((1000 * 1000) / frames_per_second); */
 		}
 	}
 

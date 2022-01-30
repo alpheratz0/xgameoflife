@@ -15,10 +15,13 @@
 
 */
 
+#define _POSIX_C_SOURCE 199309L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include <math.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
@@ -496,7 +499,8 @@ main(void) {
 
 		if (!context.paused) {
 			loop();
-			usleep((1000 * 1000) / frames_per_second);
+			nanosleep((const struct timespec[]){{0, (1000 * 1000 * 1000) / frames_per_second}}, NULL);
+			/* usleep((1000 * 1000) / frames_per_second); */
 		}
 	}
 

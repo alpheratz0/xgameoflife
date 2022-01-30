@@ -1,17 +1,17 @@
 /*
 	Copyright (C) 2022 <alpheratz99@protonmail.com>
 
-	This program is free software; you can redistribute it and/or modify it under 
-	the terms of the GNU General Public License version 2 as published by the 
+	This program is free software; you can redistribute it and/or modify it under
+	the terms of the GNU General Public License version 2 as published by the
 	Free Software Foundation.
 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY 
-	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 	FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License along with 
-	this program; if not, write to the Free Software Foundation, Inc., 59 Temple 
-	Place, Suite 330, Boston, MA 02111-1307 USA	
+	You should have received a copy of the GNU General Public License along with
+	this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	Place, Suite 330, Boston, MA 02111-1307 USA
 
 */
 
@@ -30,7 +30,7 @@
 
 #define FONT_HEIGHT 8
 
-struct context { 
+struct context {
 	bool paused;
 	int cell_size;
 	int hovered_x;
@@ -274,7 +274,7 @@ redraw(void) {
 static void
 advance_to_next_generation(void) {
 	int neighbours_alive = 0;
-	struct board board_copy = board; 
+	struct board board_copy = board;
 
 	for (int x = 0; x < COLUMNS; ++x) {
 		for (int y = 0; y < ROWS; ++y) {
@@ -293,7 +293,7 @@ advance_to_next_generation(void) {
 					board_set(&board, x, y, true);
 				}
 				continue;
-			} 
+			}
 
 			if (neighbours_alive < 3 || neighbours_alive > 4) {
 				board_set(&board, x, y, false);
@@ -311,7 +311,7 @@ loop(void) {
 static void
 mouse_down(xcb_button_press_event_t *ev) {
 	switch(ev->detail) {
-		case MOUSE_LEFT: 
+		case MOUSE_LEFT:
 			if (context.paused && ev->event_y < (wnd_size.height - 20)) {
 				board_toggle(&board, context.hovered_x, context.hovered_y);
 				redraw();
@@ -418,7 +418,7 @@ main(void) {
 		window,
 		screen->root,
 		0, 0,
-		800, 600, 
+		800, 600,
 		0,
 		XCB_WINDOW_CLASS_INPUT_OUTPUT,
 		screen->root_visual,
@@ -446,7 +446,7 @@ main(void) {
 
 	/* show the window */
 	xcb_void_cookie_t map_window_cookie = xcb_map_window(connection, window);
-	
+
 	if (xcb_request_check(connection, map_window_cookie)) {
 		xcb_disconnect(connection);
 		die("can't map window");
@@ -456,7 +456,7 @@ main(void) {
 
 	/* initialize graphic contexts */
 	gc_alive = create_gcontext_with_foreground(color_alive);
-	gc_dead = create_gcontext_with_foreground(color_dead);	
+	gc_dead = create_gcontext_with_foreground(color_dead);
 	gc_border = create_gcontext_with_foreground(color_border);
 	gc_status_bar = create_gcontext_with_foreground(color_status_bar);
 	gc_status_text = create_gcontext_font("fixed", color_status_text, color_status_bar);
@@ -466,7 +466,7 @@ main(void) {
 	while (1) {
 		while ((ev = xcb_poll_for_event(connection))) {
 			switch (ev->response_type & ~0x80) {
-				case XCB_CLIENT_MESSAGE: 
+				case XCB_CLIENT_MESSAGE:
 					/* handle window manager request to delete the window */
 					/* https://www.x.org/docs/ICCCM/icccm.pdf */
 					if (((xcb_client_message_event_t *)(ev))->data.data32[0] == wm_delete_window)
@@ -493,7 +493,7 @@ main(void) {
 		}
 
 		free(ev);
-		
+
 		if (!context.paused) {
 			loop();
 			usleep((1000 * 1000) / frames_per_second);

@@ -5,7 +5,7 @@
 #define COLUMNS 300
 
 struct board {
-	bool cells[ROWS*COLUMNS]; 
+	bool cells[ROWS*COLUMNS];
 };
 
 bool board_get(struct board *board, int x, int y);

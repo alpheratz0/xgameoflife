@@ -206,7 +206,7 @@ draw(int width, int height) {
 
 	int alive_rects_c = 0;
 
-	xcb_rectangle_t *alive_rects = malloc(sizeof(xcb_rectangle_t) * (rows + 2) * (cols * 2));
+	xcb_rectangle_t *alive_rects = malloc(sizeof(xcb_rectangle_t) * (rows + 3) * (cols + 3));
 
 	xcb_clear_area(connection, 0, window, 0, 0, width, height);
 

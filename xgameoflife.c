@@ -103,6 +103,20 @@ save_board() {
 }
 
 static void
+load_board(const char *path) {
+	int x, y;
+	FILE *file = fopen(path, "r");
+
+	if (!file)
+		die("file doesn't exist");
+
+	while (fscanf(file, "%d,%d\n", &x, &y) == 2)
+		board_set(&board, x, y, true);
+
+	fclose(file);
+}
+
+static void
 set_wm_name(const char *title) {
 	xcb_change_property(
 		connection,
@@ -424,7 +438,14 @@ key_down(xcb_key_press_event_t *ev) {
 }
 
 int
-main(void) {
+main(int argc, char **argv) {
+
+	/* parse options */
+	for (int arg = 1; arg < argc; ++arg) {
+		if ((strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--load") == 0) && (arg + 1) < argc)
+			load_board(argv[++arg]);
+	}
+
 	/* connect to the X server using the DISPLAY env variable */
 	connection = xcb_connect(NULL, NULL);
 

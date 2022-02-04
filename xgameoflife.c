@@ -77,6 +77,20 @@ die(const char *err) {
 	exit(1);
 }
 
+static void
+usage(void) {
+	printf("Usage: xgameoflife [ -h ] [ -adbsS color ] [ -l file ]\n");
+	printf("Options are:\n");
+	printf("     -l | --load                    load saved board\n");
+	printf("     -a | --alive-color             change alive cell color\n");
+	printf("     -d | --dead-color              change dead cell color\n");
+	printf("     -b | --border-color            change border color\n");
+	printf("     -s | --status-text-color       change status text color\n");
+	printf("     -S | --status-bar-color        change status bar color\n");
+	printf("     -h | --help                    display this message and exit\n");
+	exit(0);
+}
+
 static unsigned int
 parse_hex(const char *input) {
 	int index = 0, result = 0;
@@ -472,6 +486,14 @@ main(int argc, char **argv) {
 			color_status_text = parse_hex(argv[++arg]);
 		else if ((strcmp(argv[arg], "-S") == 0 || strcmp(argv[arg], "--status-bar-color") == 0) && (arg + 1) < argc)
 			color_status_bar = parse_hex(argv[++arg]);
+		else if ((strcmp(argv[arg], "-h") == 0 || strcmp(argv[arg], "--help") == 0)) {
+			usage();
+			exit(0);
+		}
+		else {
+			usage();
+			exit(1);
+		}
 	}
 
 	/* connect to the X server using the DISPLAY env variable */

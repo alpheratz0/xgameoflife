@@ -77,6 +77,24 @@ die(const char *err) {
 	exit(1);
 }
 
+static unsigned int
+parse_hex(const char *input) {
+	int index = 0, result = 0;
+	char c;
+
+	while ((c = input[index++]) != '\0') {
+		if (index > 6)
+			die("invalid size of hexadecimal color");
+
+		if (!(c >= '0' && c <= '9') && !(c >= 'A' && c <= 'F'))
+			die("invalid character in hexadecimal color");
+
+		result += pow(16, 6 - index) * ((c >= '0' && c <= '9') ? c - '0' : 10 + c - 'A');
+	}
+
+	return result;
+}
+
 static void
 save_board() {
 	time_t timer = time(NULL);
@@ -444,6 +462,16 @@ main(int argc, char **argv) {
 	for (int arg = 1; arg < argc; ++arg) {
 		if ((strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--load") == 0) && (arg + 1) < argc)
 			load_board(argv[++arg]);
+		else if ((strcmp(argv[arg], "-a") == 0 || strcmp(argv[arg], "--alive-color") == 0) && (arg + 1) < argc)
+			color_alive = parse_hex(argv[++arg]);
+		else if ((strcmp(argv[arg], "-d") == 0 || strcmp(argv[arg], "--dead-color") == 0) && (arg + 1) < argc)
+			color_dead = parse_hex(argv[++arg]);
+		else if ((strcmp(argv[arg], "-b") == 0 || strcmp(argv[arg], "--border-color") == 0) && (arg + 1) < argc)
+			color_border = parse_hex(argv[++arg]);
+		else if ((strcmp(argv[arg], "-s") == 0 || strcmp(argv[arg], "--status-text-color") == 0) && (arg + 1) < argc)
+			color_status_text = parse_hex(argv[++arg]);
+		else if ((strcmp(argv[arg], "-S") == 0 || strcmp(argv[arg], "--status-bar-color") == 0) && (arg + 1) < argc)
+			color_status_bar = parse_hex(argv[++arg]);
 	}
 
 	/* connect to the X server using the DISPLAY env variable */

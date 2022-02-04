@@ -30,6 +30,7 @@
 #include "input.h"
 #include "config.h"
 #include "board.h"
+#include "lfsleep.h"
 
 #define FONT_HEIGHT 8
 
@@ -467,6 +468,7 @@ main(void) {
 	xcb_generic_event_t *ev;
 
 	while (1) {
+		lfsleep_begin();
 		while ((ev = xcb_poll_for_event(connection))) {
 			switch (ev->response_type & ~0x80) {
 				case XCB_CLIENT_MESSAGE:
@@ -499,7 +501,7 @@ main(void) {
 
 		if (!context.paused) {
 			loop();
-			nanosleep((const struct timespec[]){{0, (1000 * 1000 * 1000) / frames_per_second}}, NULL);
+			lfsleep_end(NANOSECONDS_IN_ONE_SECOND / frames_per_second);
 		}
 	}
 

@@ -78,6 +78,31 @@ die(const char *err) {
 }
 
 static void
+save_board() {
+	time_t timer = time(NULL);
+	struct tm* tm_info = localtime(&timer);
+	char *filename = malloc(sizeof(char)*19);
+
+	strftime(filename, 19, "%Y%m%d%H%M%S.xg", tm_info);
+
+	FILE *file = fopen(filename, "w");
+
+	if (!file)
+		die("could't create the file");
+
+	for (int x = 0; x < COLUMNS; ++x) {
+		for (int y = 0; y < ROWS; ++y) {
+			if (board_get(&board, x, y)) {
+				fprintf(file, "%d,%d\n", x, y);
+			}
+		}
+	}
+
+	fclose(file);
+	free(filename);
+}
+
+static void
 set_wm_name(const char *title) {
 	xcb_change_property(
 		connection,
@@ -391,7 +416,9 @@ key_down(xcb_key_press_event_t *ev) {
 			}
 			break;
 		case KEY_S:
-			/* save the current board */
+			if (context.paused) {
+				save_board();
+			}
 			break;
 	}
 }

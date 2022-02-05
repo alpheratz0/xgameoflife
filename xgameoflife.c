@@ -88,7 +88,6 @@ usage(void) {
 	printf("     -s | --status-text-color       change status text color\n");
 	printf("     -S | --status-bar-color        change status bar color\n");
 	printf("     -h | --help                    display this message and exit\n");
-	exit(0);
 }
 
 static unsigned int

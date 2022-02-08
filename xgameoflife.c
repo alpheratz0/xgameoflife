@@ -112,9 +112,9 @@ static void
 save_board() {
 	time_t timer = time(NULL);
 	struct tm* tm_info = localtime(&timer);
-	char *filename = malloc(sizeof(char)*19);
+	char filename[19];
 
-	strftime(filename, 19, "%Y%m%d%H%M%S.xg", tm_info);
+	strftime(filename, sizeof(filename), "%Y%m%d%H%M%S.xg", tm_info);
 
 	FILE *file = fopen(filename, "w");
 
@@ -130,7 +130,6 @@ save_board() {
 	}
 
 	fclose(file);
-	free(filename);
 }
 
 static void

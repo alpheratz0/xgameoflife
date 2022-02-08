@@ -321,7 +321,7 @@ draw(int width, int height) {
 
 	if(context.paused) {
 		char hovered_cell_text[16];
-		sprintf(hovered_cell_text, "(%d, %d)", context.hovered_x, context.hovered_y);
+		snprintf(hovered_cell_text, sizeof(hovered_cell_text), "(%d, %d)", context.hovered_x, context.hovered_y);
 		draw_text(
 			gc_status_text,
 			status_bar_height / 2,

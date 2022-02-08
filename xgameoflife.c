@@ -243,7 +243,7 @@ create_gcontext_with_foreground(unsigned int fg_color) {
 		gc,
 		window,
 		XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES,
-		(const unsigned int[2]){
+		(const unsigned int[2]) {
 			/* foreground color */
 			fg_color,
 			/* no graphics exposures */

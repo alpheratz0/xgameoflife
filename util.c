@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "util.h"
 
-void
+extern void
 die(const char *err) {
 	fprintf(stderr, "xgameoflife: %s\n", err);
 	exit(1);

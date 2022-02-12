@@ -3,7 +3,10 @@
 
 #define NANOSECONDS_IN_ONE_SECOND (1000*1000*1000)
 
-void lfsleep_begin();
-void lfsleep_end(int nanoseconds);
+extern void
+lfsleep_begin(void);
+
+extern void
+lfsleep_end(int nanoseconds);
 
 #endif

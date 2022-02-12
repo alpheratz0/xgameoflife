@@ -4,28 +4,28 @@
 #include "board.h"
 #include "util.h"
 
-bool
+extern bool
 board_get(struct board *board, int x, int y) {
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	return board->cells[y * COLUMNS + x];
 }
 
-void
+extern void
 board_set(struct board *board, int x, int y, bool value) {
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	board->cells[y * COLUMNS + x] = value;
 }
 
-void
+extern void
 board_toggle(struct board *board, int x, int y) {
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	board->cells[y * COLUMNS + x] ^= true;
 }
 
-void
+extern void
 board_save(struct board *board) {
 	time_t timer = time(NULL);
 	struct tm* tm_info = localtime(&timer);
@@ -49,7 +49,7 @@ board_save(struct board *board) {
 	fclose(file);
 }
 
-void
+extern void
 board_load(struct board *board, const char *path) {
 	int x, y;
 	FILE *file = fopen(path, "r");

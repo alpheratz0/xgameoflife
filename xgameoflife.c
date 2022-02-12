@@ -119,7 +119,7 @@ save_board() {
 	FILE *file = fopen(filename, "w");
 
 	if (!file)
-		die("could't create the file");
+		die("couldn't create the file");
 
 	for (int x = 0; x < COLUMNS; ++x) {
 		for (int y = 0; y < ROWS; ++y) {

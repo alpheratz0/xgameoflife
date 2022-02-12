@@ -1,4 +1,9 @@
-include config.mk
+PREFIX = /usr/local
+LDLIBS = -lxcb -lm
+LDFLAGS = -s ${LDLIBS}
+INCS = -I. -I/usr/include
+CFLAGS = -pedantic -Wall -Wextra -Os ${INCS}
+CC = cc
 
 SRC = xgameoflife.c lfsleep.c board.c util.c
 OBJ = ${SRC:.c=.o}

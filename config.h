@@ -2,7 +2,7 @@
 #define __XGAMEOFLIFE_CONFIG_H__
 
 /* global config */
-const int frames_per_second = 20;
+const int frames_per_second = 12;
 const int max_cell_size = 100;
 const int min_cell_size = 5;
 const int status_bar_height = 20;

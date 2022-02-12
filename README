@@ -1,0 +1,11 @@
+                 xgameoflife
+=============================================
+conway's game of life using xcb (X c binding)
+
+== build & run ===============================
+you will need xcb headers to build xgameoflife
+then to build and run it do: 
+$ make && ./xgameoflife
+
+== install ========
+$ sudo make install

@@ -28,7 +28,7 @@
 #include "input.h"
 #include "config.h"
 #include "board.h"
-#include "lfsleep.h"
+#include "blocksleep.h"
 #include "util.h"
 
 #define FONT_HEIGHT 8
@@ -529,7 +529,7 @@ main(int argc, char **argv) {
 	xcb_generic_event_t *ev;
 
 	while (1) {
-		lfsleep_begin();
+		blocksleep_begin();
 		while ((ev = xcb_poll_for_event(connection))) {
 			switch (ev->response_type & ~0x80) {
 				case XCB_CLIENT_MESSAGE:
@@ -564,7 +564,7 @@ main(int argc, char **argv) {
 
 		if (!context.paused) {
 			loop();
-			lfsleep_end(NANOSECONDS_IN_ONE_SECOND / frames_per_second);
+			blocksleep_end(NANOSECONDS_IN_ONE_SECOND / frames_per_second);
 		}
 	}
 

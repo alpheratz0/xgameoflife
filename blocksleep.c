@@ -1,15 +1,15 @@
 #include <time.h>
-#include "lfsleep.h"
+#include "blocksleep.h"
 
 static struct timespec begin_timespec;
 
 extern void
-lfsleep_begin() {
+blocksleep_begin() {
     clock_gettime(CLOCK_MONOTONIC, &begin_timespec);
 }
 
 extern void
-lfsleep_end(int nanoseconds) {
+blocksleep_end(int nanoseconds) {
 	struct timespec now_timespec;
 	struct timespec delta_timespec;
 	struct timespec end_timespec = begin_timespec;

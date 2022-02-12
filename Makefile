@@ -5,12 +5,17 @@ INCS = -I. -I/usr/include
 CFLAGS = -pedantic -Wall -Wextra -Os ${INCS}
 CC = cc
 
-SRC = xgameoflife.c lfsleep.c board.c util.c
+SRC = \
+	xgameoflife.c \
+	blocksleep.c \
+	board.c \
+	util.c
+
 OBJ = ${SRC:.c=.o}
 
 all: xgameoflife
 
-${OBJ}: board.h config.h input.h lfsleep.h util.h
+${OBJ}: board.h config.h input.h blocksleep.h util.h
 
 xgameoflife: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}

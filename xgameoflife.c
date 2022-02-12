@@ -73,15 +73,15 @@ static xcb_gcontext_t gc_status_bar;
 
 static void
 usage(void) {
-	printf("Usage: xgameoflife [ -h ] [ -adbsS color ] [ -l file ]\n");
-	printf("Options are:\n");
-	printf("     -l | --load                    load saved board\n");
-	printf("     -a | --alive-color             change alive cell color\n");
-	printf("     -d | --dead-color              change dead cell color\n");
-	printf("     -b | --border-color            change border color\n");
-	printf("     -s | --status-text-color       change status text color\n");
-	printf("     -S | --status-bar-color        change status bar color\n");
-	printf("     -h | --help                    display this message and exit\n");
+	puts("Usage: xgameoflife [ -h ] [ -adbsS color ] [ -l file ]");
+	puts("Options are:");
+	puts("     -l | --load                    load saved board");
+	puts("     -a | --alive-color             change alive cell color");
+	puts("     -d | --dead-color              change dead cell color");
+	puts("     -b | --border-color            change border color");
+	puts("     -s | --status-text-color       change status text color");
+	puts("     -S | --status-bar-color        change status bar color");
+	puts("     -h | --help                    display this message and exit");
 }
 
 static unsigned int

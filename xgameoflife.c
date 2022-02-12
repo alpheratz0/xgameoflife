@@ -29,6 +29,7 @@
 #include "config.h"
 #include "board.h"
 #include "lfsleep.h"
+#include "util.h"
 
 #define FONT_HEIGHT 8
 
@@ -69,11 +70,6 @@ static xcb_gcontext_t gc_border;
 static xcb_gcontext_t gc_status_text;
 static xcb_gcontext_t gc_status_bar;
 
-static void
-die(const char *err) {
-	fprintf(stderr, "xgameoflife: %s\n", err);
-	exit(1);
-}
 
 static void
 usage(void) {
@@ -104,44 +100,6 @@ parse_hex(const char *input) {
 	}
 
 	return result;
-}
-
-static void
-save_board() {
-	time_t timer = time(NULL);
-	struct tm* tm_info = localtime(&timer);
-	char filename[19];
-
-	strftime(filename, sizeof(filename), "%Y%m%d%H%M%S.xg", tm_info);
-
-	FILE *file = fopen(filename, "w");
-
-	if (!file)
-		die("couldn't create the file");
-
-	for (int x = 0; x < COLUMNS; ++x) {
-		for (int y = 0; y < ROWS; ++y) {
-			if (board_get(&board, x, y)) {
-				fprintf(file, "%d,%d\n", x, y);
-			}
-		}
-	}
-
-	fclose(file);
-}
-
-static void
-load_board(const char *path) {
-	int x, y;
-	FILE *file = fopen(path, "r");
-
-	if (!file)
-		die("file doesn't exist");
-
-	while (fscanf(file, "%d,%d\n", &x, &y) == 2)
-		board_set(&board, x, y, true);
-
-	fclose(file);
 }
 
 static void
@@ -459,7 +417,7 @@ key_down(xcb_key_press_event_t *ev) {
 			break;
 		case KEY_S:
 			if (context.paused) {
-				save_board();
+				board_save(&board);
 			}
 			break;
 	}
@@ -471,7 +429,7 @@ main(int argc, char **argv) {
 	/* parse options */
 	for (int arg = 1; arg < argc; ++arg) {
 		if ((strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--load") == 0) && (arg + 1) < argc)
-			load_board(argv[++arg]);
+			board_load(&board, argv[++arg]);
 		else if ((strcmp(argv[arg], "-a") == 0 || strcmp(argv[arg], "--alive-color") == 0) && (arg + 1) < argc)
 			color_alive = parse_hex(argv[++arg]);
 		else if ((strcmp(argv[arg], "-d") == 0 || strcmp(argv[arg], "--dead-color") == 0) && (arg + 1) < argc)

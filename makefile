@@ -1,11 +1,11 @@
 include config.mk
 
-SRC = xgameoflife.c lfsleep.c board.c
+SRC = xgameoflife.c lfsleep.c board.c util.c
 OBJ = ${SRC:.c=.o}
 
 all: xgameoflife
 
-${OBJ}: board.h config.h input.h lfsleep.h
+${OBJ}: board.h config.h input.h lfsleep.h util.h
 
 xgameoflife: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}

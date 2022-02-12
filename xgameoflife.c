@@ -62,7 +62,6 @@ static xcb_connection_t *connection;
 static xcb_drawable_t window;
 
 static xcb_atom_t wm_delete_window;
-static xcb_atom_t wm_protocols;
 
 static xcb_gcontext_t gc_alive;
 static xcb_gcontext_t gc_dead;
@@ -132,17 +131,11 @@ set_wm_class(const char *class) {
 
 static void
 set_wm_protocols(void) {
-	wm_delete_window = xcb_intern_atom_reply(
-		connection,
-		xcb_intern_atom_unchecked(
-			connection, 1,
-			sizeof("WM_DELETE_WINDOW") - 1,
-			"WM_DELETE_WINDOW"
-		),
-		NULL
-	)->atom;
+	xcb_atom_t wm_protocols;
+	xcb_intern_atom_reply_t *wm_delete_window_reply,
+							*wm_protocols_reply;
 
-	wm_protocols = xcb_intern_atom_reply(
+	wm_protocols_reply = xcb_intern_atom_reply(
 		connection,
 		xcb_intern_atom_unchecked(
 			connection, 1,
@@ -150,7 +143,20 @@ set_wm_protocols(void) {
 			"WM_PROTOCOLS"
 		),
 		NULL
-	)->atom;
+	);
+
+	wm_delete_window_reply = xcb_intern_atom_reply(
+		connection,
+		xcb_intern_atom_unchecked(
+			connection, 1,
+			sizeof("WM_DELETE_WINDOW") - 1,
+			"WM_DELETE_WINDOW"
+		),
+		NULL
+	);
+
+	wm_delete_window = wm_delete_window_reply->atom;
+	wm_protocols = wm_protocols_reply->atom;
 
 	xcb_change_property(
 		connection,
@@ -162,6 +168,9 @@ set_wm_protocols(void) {
 		1,
 		&wm_delete_window
 	);
+
+	free(wm_delete_window_reply);
+	free(wm_protocols_reply);
 }
 
 static xcb_gcontext_t
@@ -526,8 +535,10 @@ main(int argc, char **argv) {
 				case XCB_CLIENT_MESSAGE:
 					/* handle window manager request to delete the window */
 					/* https://www.x.org/docs/ICCCM/icccm.pdf */
-					if (((xcb_client_message_event_t *)(ev))->data.data32[0] == wm_delete_window)
+					if (((xcb_client_message_event_t *)(ev))->data.data32[0] == wm_delete_window) {
+						free(ev);
 						goto end;
+					}
 					break;
 				case XCB_EXPOSE:
 					draw(((xcb_expose_event_t *)(ev))->width, ((xcb_expose_event_t *)(ev))->height);
@@ -547,9 +558,9 @@ main(int argc, char **argv) {
 				default:
 					break;
 			}
-		}
 
-		free(ev);
+			free(ev);
+		}
 
 		if (!context.paused) {
 			loop();

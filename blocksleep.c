@@ -28,12 +28,14 @@ blocksleep_end(int nanoseconds) {
 
 	if (now_timespec.tv_sec == end_timespec.tv_sec && now_timespec.tv_nsec >= end_timespec.tv_nsec)
 		return;
-	
-	delta_timespec.tv_sec = 0;
+
+	delta_timespec.tv_sec = end_timespec.tv_sec - now_timespec.tv_sec;
 	delta_timespec.tv_nsec = end_timespec.tv_nsec - now_timespec.tv_nsec;
 
-	if (delta_timespec.tv_nsec < 0)
+	if (delta_timespec.tv_nsec < 0) {
 		delta_timespec.tv_nsec += NANOSECONDS_IN_ONE_SECOND;
+		--delta_timespec.tv_sec;
+	}
 
 	nanosleep(&delta_timespec, 0);
 }

@@ -1,6 +1,6 @@
 xgameoflife
 ===========
-conway's game of life using xcb (X c binding)
+conway's game of life implemented in the c programming language using xcb (X c binding)
 
 build & run
 ===========

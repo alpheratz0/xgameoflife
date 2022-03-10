@@ -564,7 +564,7 @@ main(int argc, char **argv) {
 
 		if (!context.paused) {
 			loop();
-			blocksleep_end(NANOSECONDS_IN_ONE_SECOND / frames_per_second);
+			blocksleep_end(NANOSECONDS_PER_SECOND / frames_per_second);
 		}
 	}
 

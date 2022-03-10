@@ -1,5 +1,5 @@
-#ifndef __XGAMEOFLIFE_UTIL_H__
-#define __XGAMEOFLIFE_UTIL_H__
+#ifndef __XGAMEOFLIFE_DEBUG_H__
+#define __XGAMEOFLIFE_DEBUG_H__
 
 extern void
 die(const char *err);

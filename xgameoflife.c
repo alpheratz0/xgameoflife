@@ -29,7 +29,7 @@
 #include "config.h"
 #include "board.h"
 #include "blocksleep.h"
-#include "util.h"
+#include "debug.h"
 
 #define FONT_HEIGHT 8
 

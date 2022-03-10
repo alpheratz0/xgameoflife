@@ -9,13 +9,13 @@ SRC = \
 	xgameoflife.c \
 	blocksleep.c \
 	board.c \
-	util.c
+	debug.c
 
 OBJ = ${SRC:.c=.o}
 
 all: xgameoflife
 
-${OBJ}: board.h config.h input.h blocksleep.h util.h
+${OBJ}: board.h config.h input.h blocksleep.h debug.h
 
 xgameoflife: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}

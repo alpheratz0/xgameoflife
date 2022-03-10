@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "util.h"
+#include "debug.h"
 
 extern void
 die(const char *err) {

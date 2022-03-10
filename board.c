@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "board.h"
-#include "util.h"
+#include "debug.h"
 
 typedef struct tm tm_t;
 

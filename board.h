@@ -10,7 +10,7 @@ struct board {
 
 typedef struct board board_t;
 
-extern bool 
+extern bool
 board_get(board_t *board, int x, int y);
 
 extern void

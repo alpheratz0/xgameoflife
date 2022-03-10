@@ -53,10 +53,14 @@ struct dimensions {
 	int height;
 };
 
+typedef struct context context_t;
+typedef struct drag_info drag_info_t;
+typedef struct dimensions dimensions_t;
+
 static board_t board = { 0 };
-static struct context context = { true, 20, 0, 0 };
-static struct drag_info board_drag_info = { 0 };
-static struct dimensions wnd_size = { 0 };
+static context_t context = { true, 20, 0, 0 };
+static drag_info_t board_drag_info = { 0 };
+static dimensions_t wnd_size = { 0 };
 
 static xcb_connection_t *connection;
 static xcb_drawable_t window;

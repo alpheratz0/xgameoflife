@@ -8,19 +8,21 @@ struct board {
 	bool cells[ROWS*COLUMNS];
 };
 
+typedef struct board board_t;
+
 extern bool 
-board_get(struct board *board, int x, int y);
+board_get(board_t *board, int x, int y);
 
 extern void
-board_set(struct board *board, int x, int y, bool value);
+board_set(board_t *board, int x, int y, bool value);
 
 extern void
-board_toggle(struct board *board, int x, int y);
+board_toggle(board_t *board, int x, int y);
 
 extern void
-board_save(struct board *board);
+board_save(board_t *board);
 
 extern void
-board_load(struct board *board, const char *path);
+board_load(board_t *board, const char *path);
 
 #endif

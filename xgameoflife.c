@@ -53,7 +53,7 @@ struct dimensions {
 	int height;
 };
 
-static struct board board = { 0 };
+static board_t board = { 0 };
 static struct context context = { true, 20, 0, 0 };
 static struct drag_info board_drag_info = { 0 };
 static struct dimensions wnd_size = { 0 };
@@ -312,7 +312,7 @@ redraw(void) {
 static void
 advance_to_next_generation(void) {
 	int neighbours_alive = 0;
-	struct board board_copy = board;
+	board_t board_copy = board;
 
 	for (int x = 0; x < COLUMNS; ++x) {
 		for (int y = 0; y < ROWS; ++y) {

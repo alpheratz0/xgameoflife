@@ -2,10 +2,10 @@ xgameoflife
 ===========
 conway's game of life implemented in the c programming language using xcb (X c binding)
 
-build & run
-===========
+build
+=====
 you will need xcb headers to build this program
-$ make && ./xgameoflife
+$ make
 
 install
 =======

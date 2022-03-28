@@ -25,10 +25,13 @@ blocksleep_end(int nanoseconds) {
 	clock_gettime(CLOCK_MONOTONIC, &now_ts);
 
 	/* check if we already reached the end */
-	if (now_ts.tv_sec > end_ts.tv_sec) return;
+	if (now_ts.tv_sec > end_ts.tv_sec) {
+		return;
+	}
 
-	if (now_ts.tv_sec == end_ts.tv_sec &&
-		now_ts.tv_nsec >= end_ts.tv_nsec) return;
+	if (now_ts.tv_sec == end_ts.tv_sec && now_ts.tv_nsec >= end_ts.tv_nsec) {
+		return;
+	}
 
 	delta_ts.tv_sec = end_ts.tv_sec - now_ts.tv_sec;
 	delta_ts.tv_nsec = end_ts.tv_nsec - now_ts.tv_nsec;

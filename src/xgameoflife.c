@@ -76,33 +76,18 @@ static xcb_gcontext_t gc_status_bar;
 
 static void
 usage(void) {
-	puts("Usage: xgameoflife [ -h ] [ -adbsS color ] [ -l file ]");
+	puts("Usage: xgameoflife [ -hv ] [ -l file ]");
 	puts("Options are:");
 	puts("     -l | --load                    load saved board");
-	puts("     -a | --alive-color             change alive cell color");
-	puts("     -d | --dead-color              change dead cell color");
-	puts("     -b | --border-color            change border color");
-	puts("     -s | --status-text-color       change status text color");
-	puts("     -S | --status-bar-color        change status bar color");
+	puts("     -v | --version                 display program version");
 	puts("     -h | --help                    display this message and exit");
+	exit(0);
 }
 
-static unsigned int
-parse_hex(const char *input) {
-	int index = 0, result = 0;
-	char c;
-
-	while ((c = input[index++]) != '\0') {
-		if (index > 6)
-			die("invalid size of hexadecimal color");
-
-		if (!(c >= '0' && c <= '9') && !(c >= 'A' && c <= 'F'))
-			die("invalid character in hexadecimal color");
-
-		result += pow(16, 6 - index) * ((c >= '0' && c <= '9') ? c - '0' : 10 + c - 'A');
-	}
-
-	return result;
+static void
+version(void) {
+	puts("xgameoflife version "VERSION);
+	exit(0);
 }
 
 static void
@@ -436,31 +421,23 @@ key_down(xcb_key_press_event_t *ev) {
 	}
 }
 
+static bool
+match_opt(const char *in, const char *sh, const char *lo) {
+	return (strcmp(in, sh) == 0) ||
+		   (strcmp(in, lo) == 0);
+}
+
 int
 main(int argc, char **argv) {
+	/* skip program name */
+	--argc; ++argv;
 
 	/* parse options */
-	for (int arg = 1; arg < argc; ++arg) {
-		if ((strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--load") == 0) && (arg + 1) < argc)
-			board_load(&board, argv[++arg]);
-		else if ((strcmp(argv[arg], "-a") == 0 || strcmp(argv[arg], "--alive-color") == 0) && (arg + 1) < argc)
-			color_alive = parse_hex(argv[++arg]);
-		else if ((strcmp(argv[arg], "-d") == 0 || strcmp(argv[arg], "--dead-color") == 0) && (arg + 1) < argc)
-			color_dead = parse_hex(argv[++arg]);
-		else if ((strcmp(argv[arg], "-b") == 0 || strcmp(argv[arg], "--border-color") == 0) && (arg + 1) < argc)
-			color_border = parse_hex(argv[++arg]);
-		else if ((strcmp(argv[arg], "-s") == 0 || strcmp(argv[arg], "--status-text-color") == 0) && (arg + 1) < argc)
-			color_status_text = parse_hex(argv[++arg]);
-		else if ((strcmp(argv[arg], "-S") == 0 || strcmp(argv[arg], "--status-bar-color") == 0) && (arg + 1) < argc)
-			color_status_bar = parse_hex(argv[++arg]);
-		else if ((strcmp(argv[arg], "-h") == 0 || strcmp(argv[arg], "--help") == 0)) {
-			usage();
-			exit(0);
-		}
-		else {
-			usage();
-			exit(1);
-		}
+	if (argc > 0) {
+		if (match_opt(*argv, "-l", "--load") && argc-- > 0) board_load(&board, *++argv);
+		else if (match_opt(*argv, "-h", "--help")) usage();
+		else if (match_opt(*argv, "-v", "--version")) version();
+		else dief("invalid option %s", *argv);
 	}
 
 	/* connect to the X server using the DISPLAY env variable */

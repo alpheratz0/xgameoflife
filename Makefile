@@ -1,8 +1,9 @@
+VERSION = 0.1.0
 PREFIX = /usr/local
 LDLIBS = -lxcb -lm
 LDFLAGS = -s ${LDLIBS}
 INCS = -I. -I/usr/include
-CFLAGS = -pedantic -Wall -Wextra -Os ${INCS}
+CFLAGS = -pedantic -Wall -Wextra -Os ${INCS} -DVERSION=\"${VERSION}\"
 CC = cc
 
 SRC = src/xgameoflife.c \

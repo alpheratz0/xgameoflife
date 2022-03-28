@@ -6,8 +6,6 @@
 #include "board.h"
 #include "debug.h"
 
-typedef struct tm tm_t;
-
 extern bool
 board_get(board_t *board, int x, int y) {
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
@@ -32,7 +30,7 @@ board_toggle(board_t *board, int x, int y) {
 extern void
 board_save(board_t *board) {
 	time_t timer;
-	tm_t *tm_info;
+	struct tm *tm_info;
 	char filename[19];
 	FILE *file;
 

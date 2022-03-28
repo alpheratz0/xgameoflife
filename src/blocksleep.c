@@ -1,9 +1,7 @@
 #include <time.h>
 #include "blocksleep.h"
 
-typedef struct timespec timespec_t;
-
-static timespec_t begin_ts;
+static struct timespec begin_ts;
 
 extern void
 blocksleep_begin() {
@@ -12,7 +10,7 @@ blocksleep_begin() {
 
 extern void
 blocksleep_end(int nanoseconds) {
-	timespec_t now_ts, delta_ts, end_ts;
+	struct timespec now_ts, delta_ts, end_ts;
 
 	end_ts = begin_ts;
 	end_ts.tv_nsec += nanoseconds;

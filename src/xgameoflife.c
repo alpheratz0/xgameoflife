@@ -76,7 +76,7 @@ static xcb_gcontext_t gc_status_bar;
 
 static void
 usage(void) {
-	puts("Usage: xgameoflife [ -hv ] [ -l file ]");
+	puts("Usage: xgameoflife [ -hv ] [ -l FILE ]");
 	puts("Options are:");
 	puts("     -l | --load                    load saved board");
 	puts("     -v | --version                 display program version");

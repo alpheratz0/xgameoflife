@@ -434,7 +434,7 @@ main(int argc, char **argv) {
 
 	/* parse options */
 	if (argc > 0) {
-		if (match_opt(*argv, "-l", "--load") && argc-- > 0) board_load(&board, *++argv);
+		if (match_opt(*argv, "-l", "--load") && --argc > 0) board_load(&board, *++argv);
 		else if (match_opt(*argv, "-h", "--help")) usage();
 		else if (match_opt(*argv, "-v", "--version")) version();
 		else dief("invalid option %s", *argv);

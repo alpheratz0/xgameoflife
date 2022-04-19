@@ -272,7 +272,7 @@ draw(int width, int height) {
 	xcb_rectangle_t status_bar_rect = { 0, wnd_size.height - status_bar_height, wnd_size.width, status_bar_height };
 	xcb_poly_fill_rectangle(connection, window, gc_status_bar, 1, &status_bar_rect);
 
-	if(context.paused) {
+	if (context.paused) {
 		char hovered_cell_text[16];
 		snprintf(hovered_cell_text, sizeof(hovered_cell_text), "(%d, %d)", context.hovered_x, context.hovered_y);
 		draw_text(
@@ -337,7 +337,7 @@ loop(void) {
 
 static void
 mouse_down(xcb_button_press_event_t *ev) {
-	switch(ev->detail) {
+	switch (ev->detail) {
 		case MOUSE_LEFT:
 			if (context.paused && ev->event_y < (wnd_size.height - 20)) {
 				board_toggle(&board, context.hovered_x, context.hovered_y);
@@ -374,7 +374,7 @@ mouse_down(xcb_button_press_event_t *ev) {
 
 static void
 mouse_up(xcb_button_release_event_t *ev) {
-	switch(ev->detail) {
+	switch (ev->detail) {
 		case MOUSE_MIDDLE:
 			board_drag_info.active = false;
 			break;
@@ -402,7 +402,7 @@ mouse_move(xcb_motion_notify_event_t *ev) {
 
 static void
 key_down(xcb_key_press_event_t *ev) {
-	switch(ev->detail) {
+	switch (ev->detail) {
 		case KEY_SPACE:
 			context.paused = !context.paused;
 			redraw();

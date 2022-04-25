@@ -63,7 +63,7 @@ static drag_info_t board_drag_info = { 0 };
 static dimensions_t wnd_size = { 0 };
 
 static xcb_connection_t *connection;
-static xcb_drawable_t window;
+static xcb_window_t window;
 
 static xcb_atom_t wm_delete_window;
 

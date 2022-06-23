@@ -90,7 +90,8 @@ static xcb_gcontext_t gc_status_bar;
 
 
 static void
-usage(void) {
+usage(void)
+{
 	puts("Usage: xgameoflife [ -hv ] [ -l FILE ]");
 	puts("Options are:");
 	puts("     -l | --load                    load saved board");
@@ -100,13 +101,15 @@ usage(void) {
 }
 
 static void
-version(void) {
+version(void)
+{
 	puts("xgameoflife version "VERSION);
 	exit(0);
 }
 
 static void
-set_wm_name(const char *title) {
+set_wm_name(const char *title)
+{
 	xcb_change_property(
 		connection,
 		XCB_PROP_MODE_REPLACE,
@@ -120,7 +123,8 @@ set_wm_name(const char *title) {
 }
 
 static void
-set_wm_class(const char *class) {
+set_wm_class(const char *class)
+{
 	xcb_change_property(
 		connection,
 		XCB_PROP_MODE_REPLACE,
@@ -134,7 +138,8 @@ set_wm_class(const char *class) {
 }
 
 static void
-set_wm_protocols(void) {
+set_wm_protocols(void)
+{
 	xcb_atom_t wm_protocols;
 	xcb_intern_atom_reply_t *wm_delete_window_reply,
 							*wm_protocols_reply;
@@ -178,7 +183,8 @@ set_wm_protocols(void) {
 }
 
 static xcb_gcontext_t
-create_gcontext_font(const char *name, unsigned int fg, unsigned int bg) {
+create_gcontext_font(const char *name, unsigned int fg, unsigned int bg)
+{
 	xcb_font_t font = xcb_generate_id (connection);
 	xcb_gcontext_t gc_font = xcb_generate_id(connection);
 	xcb_void_cookie_t font_cookie = xcb_open_font_checked(connection, font,	strlen(name), name);
@@ -205,7 +211,8 @@ create_gcontext_font(const char *name, unsigned int fg, unsigned int bg) {
 }
 
 static xcb_gcontext_t
-create_gcontext_with_foreground(unsigned int fg_color) {
+create_gcontext_with_foreground(unsigned int fg_color)
+{
 	xcb_gcontext_t gc = xcb_generate_id(connection);
 	xcb_create_gc(
 		connection,
@@ -223,12 +230,14 @@ create_gcontext_with_foreground(unsigned int fg_color) {
 }
 
 static void
-draw_text(xcb_gcontext_t gc, short x, short y, const char *text) {
+draw_text(xcb_gcontext_t gc, short x, short y, const char *text)
+{
 	xcb_image_text_8_checked(connection, strlen(text), window, gc, x, y, text);
 }
 
 static void
-draw(int width, int height) {
+draw(int width, int height)
+{
 	/* update window dimensions */
 	wnd_size.width = width;
 	wnd_size.height = height;
@@ -309,12 +318,14 @@ draw(int width, int height) {
 }
 
 static void
-redraw(void) {
+redraw(void)
+{
 	draw(wnd_size.width, wnd_size.height);
 }
 
 static void
-advance_to_next_generation(void) {
+advance_to_next_generation(void)
+{
 	int neighbours_alive = 0;
 	board_t board_copy = board;
 
@@ -345,13 +356,15 @@ advance_to_next_generation(void) {
 }
 
 static void
-loop(void) {
+loop(void)
+{
 	advance_to_next_generation();
 	redraw();
 }
 
 static void
-mouse_down(xcb_button_press_event_t *ev) {
+mouse_down(xcb_button_press_event_t *ev)
+{
 	switch (ev->detail) {
 		case MOUSE_LEFT:
 			if (context.paused && ev->event_y < (wnd_size.height - 20)) {
@@ -388,7 +401,8 @@ mouse_down(xcb_button_press_event_t *ev) {
 }
 
 static void
-mouse_up(xcb_button_release_event_t *ev) {
+mouse_up(xcb_button_release_event_t *ev)
+{
 	switch (ev->detail) {
 		case MOUSE_MIDDLE:
 			board_drag_info.active = false;
@@ -397,7 +411,8 @@ mouse_up(xcb_button_release_event_t *ev) {
 }
 
 static void
-mouse_move(xcb_motion_notify_event_t *ev) {
+mouse_move(xcb_motion_notify_event_t *ev)
+{
 	if (board_drag_info.active) {
 		board_drag_info.offset_x += ev->event_x - board_drag_info.prev_x;
 		board_drag_info.offset_y += ev->event_y - board_drag_info.prev_y;
@@ -416,7 +431,8 @@ mouse_move(xcb_motion_notify_event_t *ev) {
 }
 
 static void
-key_down(xcb_key_press_event_t *ev) {
+key_down(xcb_key_press_event_t *ev)
+{
 	switch (ev->detail) {
 		case KEY_SPACE:
 			context.paused = !context.paused;
@@ -437,13 +453,15 @@ key_down(xcb_key_press_event_t *ev) {
 }
 
 static bool
-match_opt(const char *in, const char *sh, const char *lo) {
+match_opt(const char *in, const char *sh, const char *lo)
+{
 	return (strcmp(in, sh) == 0) ||
 		   (strcmp(in, lo) == 0);
 }
 
 int
-main(int argc, char **argv) {
+main(int argc, char **argv)
+{
 	/* skip program name */
 	--argc; ++argv;
 

@@ -4,12 +4,14 @@
 static struct timespec begin_ts;
 
 extern void
-blocksleep_begin() {
+blocksleep_begin()
+{
 	clock_gettime(CLOCK_MONOTONIC, &begin_ts);
 }
 
 extern void
-blocksleep_end(int nanoseconds) {
+blocksleep_end(int nanoseconds)
+{
 	struct timespec now_ts, delta_ts, end_ts;
 
 	end_ts = begin_ts;

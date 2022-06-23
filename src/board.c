@@ -7,28 +7,32 @@
 #include "debug.h"
 
 extern bool
-board_get(board_t *board, int x, int y) {
+board_get(board_t *board, int x, int y)
+{
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	return board->cells[y * COLUMNS + x];
 }
 
 extern void
-board_set(board_t *board, int x, int y, bool value) {
+board_set(board_t *board, int x, int y, bool value)
+{
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	board->cells[y * COLUMNS + x] = value;
 }
 
 extern void
-board_toggle(board_t *board, int x, int y) {
+board_toggle(board_t *board, int x, int y)
+{
 	x = ((x % COLUMNS) + COLUMNS) % COLUMNS;
 	y = ((y % ROWS) + ROWS) % ROWS;
 	board->cells[y * COLUMNS + x] ^= true;
 }
 
 extern void
-board_save(board_t *board) {
+board_save(board_t *board)
+{
 	time_t timer;
 	struct tm *tm_info;
 	char filename[19];
@@ -55,7 +59,8 @@ board_save(board_t *board) {
 }
 
 extern void
-board_load(board_t *board, const char *path) {
+board_load(board_t *board, const char *path)
+{
 	int x, y;
 	FILE *file;
 

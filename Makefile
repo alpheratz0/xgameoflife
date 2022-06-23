@@ -1,10 +1,10 @@
-VERSION = 0.2.1
+VERSION = 0.2.1-rev+${shell git rev-parse --short=16 HEAD}
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 LDLIBS = -lxcb -lm
 LDFLAGS = -s ${LDLIBS}
 INCS = -I. -I/usr/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -D_XOPEN_SOURCE=500 -DVERSION=\"${VERSION}\"
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -D_XOPEN_SOURCE=500 -DVERSION="\"${VERSION}\""
 CC = cc
 
 SRC = src/xgameoflife.c \

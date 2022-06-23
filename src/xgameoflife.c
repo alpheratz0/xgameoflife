@@ -462,15 +462,12 @@ match_opt(const char *in, const char *sh, const char *lo)
 int
 main(int argc, char **argv)
 {
-	/* skip program name */
-	--argc; ++argv;
-
-	/* parse options */
-	if (argc > 0) {
+	if (++argv, --argc > 0) {
 		if (match_opt(*argv, "-l", "--load") && --argc > 0) board_load(&board, *++argv);
 		else if (match_opt(*argv, "-h", "--help")) usage();
 		else if (match_opt(*argv, "-v", "--version")) version();
-		else dief("invalid option %s", *argv);
+		else if (**argv == '-') dief("invalid option %s", *argv);
+		else dief("unexpected argument: %s", *argv);
 	}
 
 	/* connect to the X server using the DISPLAY env variable */

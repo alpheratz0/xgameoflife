@@ -119,7 +119,7 @@ dief(const char *err, ...)
 }
 
 static void
-blockstart()
+blockstart(void)
 {
 	clock_gettime(CLOCK_MONOTONIC, &begin_ts);
 }

@@ -619,19 +619,19 @@ static void
 h_key_press(xcb_key_press_event_t *ev)
 {
 	switch (ev->detail) {
-	case KEY_SPACE:
-		running = !running;
-		render_scene();
-		break;
-	case KEY_N:
-		if (!running) {
-			advance_to_next_generation();
+		case KEY_SPACE:
+			running = !running;
 			render_scene();
-		}
-		break;
-	case KEY_S:
-		save_board();
-		break;
+			break;
+		case KEY_N:
+			if (!running) {
+				advance_to_next_generation();
+				render_scene();
+			}
+			break;
+		case KEY_S:
+			save_board();
+			break;
 	}
 }
 
@@ -648,25 +648,25 @@ h_button_press(xcb_button_press_event_t *ev)
 	zoom = 0;
 
 	switch (ev->detail) {
-	case MOUSE_LEFT:
-		toggle_cell(hovered.x, hovered.y);
-		render_scene();
-		break;
-	case MOUSE_MIDDLE:
-		dragging = true;
-		mousepos.x = ev->event_x;
-		mousepos.y = ev->event_y;
-		break;
-	case MOUSE_WHEEL_UP:
-		if (cellsize < 50) {
-			zoom = 1;
-		}
-		break;
-	case MOUSE_WHEEL_DOWN:
-		if (cellsize > 10) {
-			zoom = -1;
-		}
-		break;
+		case MOUSE_LEFT:
+			toggle_cell(hovered.x, hovered.y);
+			render_scene();
+			break;
+		case MOUSE_MIDDLE:
+			dragging = true;
+			mousepos.x = ev->event_x;
+			mousepos.y = ev->event_y;
+			break;
+		case MOUSE_WHEEL_UP:
+			if (cellsize < 50) {
+				zoom = 1;
+			}
+			break;
+		case MOUSE_WHEEL_DOWN:
+			if (cellsize > 10) {
+				zoom = -1;
+			}
+			break;
 	}
 
 	if (zoom) {
@@ -731,26 +731,26 @@ main(int argc, char **argv)
 		blockstart();
 		while ((ev = xcb_poll_for_event(conn))) {
 			switch (ev->response_type & ~0x80) {
-			case XCB_CLIENT_MESSAGE:
-				h_client_message((xcb_client_message_event_t *)(ev));
-				break;
-			case XCB_EXPOSE:
-				h_expose((xcb_expose_event_t *)(ev));
-				break;
-			case XCB_KEY_PRESS:
-				h_key_press((xcb_key_press_event_t *)(ev));
-				break;
-			case XCB_BUTTON_PRESS:
-				h_button_press((xcb_button_press_event_t *)(ev));
-				break;
-			case XCB_BUTTON_RELEASE:
-				h_button_release((xcb_button_release_event_t *)(ev));
-				break;
-			case XCB_MOTION_NOTIFY:
-				h_motion_notify((xcb_motion_notify_event_t *)(ev));
-				break;
-			default:
-				break;
+				case XCB_CLIENT_MESSAGE:
+					h_client_message((xcb_client_message_event_t *)(ev));
+					break;
+				case XCB_EXPOSE:
+					h_expose((xcb_expose_event_t *)(ev));
+					break;
+				case XCB_KEY_PRESS:
+					h_key_press((xcb_key_press_event_t *)(ev));
+					break;
+				case XCB_BUTTON_PRESS:
+					h_button_press((xcb_button_press_event_t *)(ev));
+					break;
+				case XCB_BUTTON_RELEASE:
+					h_button_release((xcb_button_release_event_t *)(ev));
+					break;
+				case XCB_MOTION_NOTIFY:
+					h_motion_notify((xcb_motion_notify_event_t *)(ev));
+					break;
+				default:
+					break;
 			}
 
 			free(ev);

@@ -1,12 +1,16 @@
-xgameoflife
-===========
-conway's game of life implemented in the c programming language using xcb (X c binding)
+]|~ xgameoflife ~|[
 
-build
-=====
-you will need xcb headers to build this program
+Conway's game of life implemented in the C programming language
+using the xcb library.
+
+]|~ build ~|[
+
+In order to build xgameoflife you will need xcb headers.
 $ make
 
-install
-=======
-# make install
+]|~ license ~|[
+
+This program is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License
+version 2 as published by the Free Software Foundation.
+See LICENSE for more details.

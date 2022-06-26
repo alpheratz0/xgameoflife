@@ -4,7 +4,7 @@ MANPREFIX = ${PREFIX}/share/man
 LDLIBS = -lxcb -lm
 LDFLAGS = -s ${LDLIBS}
 INCS = -I. -I/usr/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -D_XOPEN_SOURCE=500 -DVERSION="\"${VERSION}\""
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -DVERSION="\"${VERSION}\""
 CC = cc
 
 SRC = xgameoflife.c

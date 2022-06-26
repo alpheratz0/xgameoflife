@@ -1,23 +1,20 @@
 VERSION = 0.1.0
+
+CC      = cc
+CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"${VERSION}\"
+LDLIBS  = -lxcb -lm
+LDFLAGS = -s ${LDLIBS}
+
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
-LDLIBS = -lxcb -lm
-LDFLAGS = -s ${LDLIBS}
-INCS = -I. -I/usr/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -DVERSION=\"${VERSION}\"
-CC = cc
-
-SRC = xgameoflife.c
-
-OBJ = ${SRC:.c=.o}
 
 all: xgameoflife
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-xgameoflife: ${OBJ}
-	${CC} -o $@ ${OBJ} ${LDFLAGS}
+xgameoflife: xgameoflife.o
+	${CC} -o $@ $< ${LDFLAGS}
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
@@ -39,6 +36,6 @@ uninstall:
 	rm -f ${DESTDIR}${MANPREFIX}/man6/xgameoflife.6
 
 clean:
-	rm -f xgameoflife xgameoflife-${VERSION}.tar.gz ${OBJ}
+	rm -f xgameoflife xgameoflife.o xgameoflife-${VERSION}.tar.gz
 
 .PHONY: all clean install uninstall dist

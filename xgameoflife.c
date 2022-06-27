@@ -398,8 +398,7 @@ advance_to_next_generation(void)
 			n = count_neighbours_alive(x, y);
 			cell = get_cell(x, y);
 
-			cells[1][y * columns + x] = (!cell && n == 3) ||
-			                            (cell && (n == 2 || n == 3));
+			cells[1][y*columns+x] = n == 3 || (cell && n == 2);
 		}
 	}
 

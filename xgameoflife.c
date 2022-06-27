@@ -328,7 +328,7 @@ create_window(void)
 static void
 destroy_window(void)
 {
-	for (size_t i = 0; i < (sizeof(graphics) / sizeof(graphics[0])); ++i) {
+	for (size_t i = 0; i < GC_COUNT; ++i) {
 		xcb_free_gc(conn, graphics[i]);
 	}
 

@@ -449,6 +449,8 @@ load_board(const char *path)
 
 	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
 		rows = columns = 300;
+
+		rewind(fp);
 	}
 
 	create_board(columns, rows);

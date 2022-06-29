@@ -57,6 +57,9 @@
 #define FONT_HEIGHT                        (8)
 #define INFO_BAR_HEIGHT                    (20)
 
+#define MIN_CELLSIZE                       (5)
+#define MAX_CELLSIZE                       (50)
+
 #define MOUSE_LEFT                         (1)
 #define MOUSE_MIDDLE                       (2)
 #define MOUSE_RIGHT                        (3)
@@ -661,12 +664,12 @@ h_button_press(xcb_button_press_event_t *ev)
 			mousepos.y = ev->event_y;
 			break;
 		case MOUSE_WHEEL_UP:
-			if (cellsize < 50) {
+			if (cellsize < MAX_CELLSIZE) {
 				zoom = 1;
 			}
 			break;
 		case MOUSE_WHEEL_DOWN:
-			if (cellsize > 5) {
+			if (cellsize > MIN_CELLSIZE) {
 				zoom = -1;
 			}
 			break;

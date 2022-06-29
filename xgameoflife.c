@@ -36,7 +36,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
@@ -86,14 +85,14 @@ static xcb_gcontext_t graphics[GC_COUNT];
 static int32_t rows;
 static int32_t columns;
 static int32_t cellsize;
-static bool *cells[2];
+static uint8_t *cells[2];
 
 /* game status */
-static bool running;
+static int running;
 static xcb_point_t hovered;
 
 /* dragging */
-static bool dragging;
+static int dragging;
 static xcb_point_t offset;
 static xcb_point_t mousepos;
 
@@ -328,7 +327,9 @@ create_window(void)
 static void
 destroy_window(void)
 {
-	for (size_t i = 0; i < GC_COUNT; ++i) {
+	size_t i;
+
+	for (i = 0; i < GC_COUNT; ++i) {
 		xcb_free_gc(conn, graphics[i]);
 	}
 
@@ -346,7 +347,7 @@ create_board(int32_t c, int32_t r)
 	cellsize = 20;
 }
 
-static bool
+static uint8_t
 get_cell(int x, int y)
 {
 	x = ((x % columns) + columns) % columns;
@@ -355,7 +356,7 @@ get_cell(int x, int y)
 }
 
 static void
-set_cell(int x, int y, bool value)
+set_cell(int x, int y, uint8_t value)
 {
 	x = ((x % columns) + columns) % columns;
 	y = ((y % rows) + rows) % rows;
@@ -367,7 +368,7 @@ toggle_cell(int x, int y)
 {
 	x = ((x % columns) + columns) % columns;
 	y = ((y % rows) + rows) % rows;
-	cells[0][y * columns + x] ^= true;
+	cells[0][y * columns + x] ^= 1;
 }
 
 static int
@@ -391,12 +392,12 @@ static void
 advance_to_next_generation(void)
 {
 	int x, y, n;
-	bool cell, *tmp;
+	uint8_t cell, *tmp;
 
 	for (x = 0; x < columns; ++x) {
 		for (y = 0; y < rows; ++y) {
-			n = count_neighbours_alive(x, y);
 			cell = get_cell(x, y);
+			n = count_neighbours_alive(x, y);
 
 			cells[1][y*columns+x] = n == 3 || (cell && n == 2);
 		}
@@ -411,7 +412,7 @@ advance_to_next_generation(void)
 static void
 save_board(void)
 {
-	int16_t x, y;
+	int x, y;
 	struct tm *now;
 	char filename[19];
 	FILE *fp;
@@ -439,7 +440,7 @@ save_board(void)
 static void
 load_board(const char *path)
 {
-	int32_t x, y;
+	int x, y;
 	FILE *fp;
 
 	if (NULL == (fp = fopen(path, "r"))) {
@@ -453,7 +454,7 @@ load_board(const char *path)
 	create_board(columns, rows);
 
 	while (fscanf(fp, "%d,%d\n", &x, &y) == 2) {
-		set_cell(x, y, true);
+		set_cell(x, y, 1);
 	}
 
 	fclose(fp);
@@ -567,7 +568,7 @@ render_scene(void)
 	xcb_flush(conn);
 }
 
-static bool
+static int
 match_opt(const char *in, const char *sh, const char *lo)
 {
 	return (strcmp(in, sh) == 0) || (strcmp(in, lo) == 0);
@@ -653,7 +654,7 @@ h_button_press(xcb_button_press_event_t *ev)
 			render_scene();
 			break;
 		case MOUSE_MIDDLE:
-			dragging = true;
+			dragging = 1;
 			mousepos.x = ev->event_x;
 			mousepos.y = ev->event_y;
 			break;
@@ -682,7 +683,7 @@ static void
 h_button_release(xcb_button_release_event_t *ev)
 {
 	if (ev->detail == MOUSE_MIDDLE) {
-		dragging = false;
+		dragging = 0;
 	}
 }
 

@@ -57,6 +57,10 @@
 #define FONT_HEIGHT                        (8)
 #define INFO_BAR_HEIGHT                    (20)
 
+#define DEFAULT_COLUMNS                    (300)
+#define DEFAULT_ROWS                       (300)
+#define DEFAULT_CELLSIZE                   (20)
+
 #define MIN_CELLSIZE                       (5)
 #define MAX_CELLSIZE                       (50)
 
@@ -347,7 +351,7 @@ create_board(int32_t c, int32_t r)
 
 	columns = c;
 	rows = r;
-	cellsize = 20;
+	cellsize = DEFAULT_CELLSIZE;
 }
 
 static uint8_t
@@ -451,7 +455,8 @@ load_board(const char *path)
 	}
 
 	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
-		rows = columns = 300;
+		columns = DEFAULT_COLUMNS;
+		rows = DEFAULT_ROWS;
 
 		rewind(fp);
 	}
@@ -730,7 +735,7 @@ main(int argc, char **argv)
 
 	create_window();
 
-	if (NULL == loadpath) create_board(300, 300);
+	if (NULL == loadpath) create_board(DEFAULT_COLUMNS, DEFAULT_ROWS);
 	else load_board(loadpath);
 
 	while (1) {

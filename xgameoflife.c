@@ -641,7 +641,9 @@ h_key_press(xcb_key_press_event_t *ev)
 			}
 			break;
 		case KEY_S:
-			save_board();
+			if (ev->state & XCB_MOD_MASK_CONTROL) {
+				save_board();
+			}
 			break;
 	}
 }

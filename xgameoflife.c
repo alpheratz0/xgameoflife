@@ -450,7 +450,7 @@ load_board(const char *path)
 		rows = columns = 300;
 	}
 
-	create_board(rows, columns);
+	create_board(columns, rows);
 
 	while (fscanf(fp, "%d,%d\n", &x, &y) == 2) {
 		set_cell(x, y, true);

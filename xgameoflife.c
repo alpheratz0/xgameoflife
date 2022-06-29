@@ -666,7 +666,7 @@ h_button_press(xcb_button_press_event_t *ev)
 			}
 			break;
 		case MOUSE_WHEEL_DOWN:
-			if (cellsize > 10) {
+			if (cellsize > 5) {
 				zoom = -1;
 			}
 			break;

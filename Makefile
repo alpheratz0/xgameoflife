@@ -5,7 +5,7 @@ CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"${VERSION}\"
 LDLIBS  = -lxcb -lm
 LDFLAGS = -s ${LDLIBS}
 
-PREFIX = /usr/local
+PREFIX    = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
 all: xgameoflife

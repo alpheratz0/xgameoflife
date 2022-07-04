@@ -349,6 +349,17 @@ create_board(int32_t c, int32_t r)
 	cells[0] = xcalloc(c*r, sizeof(uint8_t));
 	cells[1] = xcalloc(c*r, sizeof(uint8_t));
 
+#if 0
+	uint32_t i;
+	uint32_t len;
+
+	len = c*r;
+
+	for (i = 0; i < len; ++i) {
+		cells[0][i] = rand() % 3 != 0;
+	}
+#endif
+
 	columns = c;
 	rows = r;
 	cellsize = DEFAULT_CELLSIZE;

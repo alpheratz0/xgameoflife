@@ -487,7 +487,7 @@ render_scene(void)
 	int16_t width, height;
 
 	int32_t rectc;
-	xcb_rectangle_t rects[256];
+	xcb_rectangle_t rects[8192];
 
 	int32_t i;
 	xcb_point_t line[2];

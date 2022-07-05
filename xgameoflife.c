@@ -86,7 +86,7 @@ enum {
 
 enum {
 	CURSOR_FLEUR,
-	CURSOR_PENCIL,
+	CURSOR_LEFT_PTR,
 	CURSOR_COUNT
 };
 
@@ -296,24 +296,19 @@ create_window(void)
 		die("can't create cursor context");
 	}
 
-	/* load cursors */
-	cursors[CURSOR_FLEUR] = xcb_cursor_load_cursor(cctx, "fleur");
-	cursors[CURSOR_PENCIL] = xcb_cursor_load_cursor(cctx, "pencil");
-
 	window = xcb_generate_id(conn);
 
 	xcb_create_window(
 		conn, XCB_COPY_FROM_PARENT, window, screen->root,
 		0, 0, 800, 600, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_CURSOR,
+		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK,
 		(const uint32_t[]) {
 			DEAD_COLOR,
 			XCB_EVENT_MASK_EXPOSURE |
 			XCB_EVENT_MASK_KEY_PRESS |
 			XCB_EVENT_MASK_BUTTON_PRESS |
 			XCB_EVENT_MASK_BUTTON_RELEASE |
-			XCB_EVENT_MASK_POINTER_MOTION,
-			cursors[CURSOR_PENCIL]
+			XCB_EVENT_MASK_POINTER_MOTION
 		}
 	);
 
@@ -344,6 +339,10 @@ create_window(void)
 	graphics[GC_BORDER] = xcolor(BORDER_COLOR);
 	graphics[GC_TEXT] = xfont("fixed", TEXT_COLOR, BAR_COLOR);
 	graphics[GC_BAR] = xcolor(BAR_COLOR);
+
+	/* load cursors */
+	cursors[CURSOR_FLEUR] = xcb_cursor_load_cursor(cctx, "fleur");
+	cursors[CURSOR_LEFT_PTR] = xcb_cursor_load_cursor(cctx, "left_ptr");
 
 	xcb_map_window(conn, window);
 	xcb_flush(conn);
@@ -720,7 +719,7 @@ h_button_release(xcb_button_release_event_t *ev)
 {
 	if (ev->detail == MOUSE_MIDDLE) {
 		dragging = 0;
-		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_PENCIL]);
+		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_LEFT_PTR]);
 	}
 }
 

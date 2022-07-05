@@ -692,6 +692,7 @@ h_button_press(xcb_button_press_event_t *ev)
 			mousepos.x = ev->event_x;
 			mousepos.y = ev->event_y;
 			xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_FLEUR]);
+			xcb_flush(conn);
 			break;
 		case MOUSE_WHEEL_UP:
 			if (cellsize < MAX_CELLSIZE) {
@@ -720,6 +721,7 @@ h_button_release(xcb_button_release_event_t *ev)
 	if (ev->detail == MOUSE_MIDDLE) {
 		dragging = 0;
 		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_LEFT_PTR]);
+		xcb_flush(conn);
 	}
 }
 

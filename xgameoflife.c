@@ -43,6 +43,7 @@
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_cursor.h>
 
 #define UNUSED                             __attribute__((unused))
 
@@ -83,9 +84,17 @@ enum {
 	GC_COUNT
 };
 
+enum {
+	CURSOR_FLEUR,
+	CURSOR_PENCIL,
+	CURSOR_COUNT
+};
+
 /* x11 */
 static xcb_connection_t *conn;
 static xcb_window_t window;
+static xcb_cursor_context_t *cctx;
+static xcb_cursor_t cursors[CURSOR_COUNT];
 static xcb_gcontext_t graphics[GC_COUNT];
 
 /* board */
@@ -283,19 +292,28 @@ create_window(void)
 		die("can't get default screen");
 	}
 
+	if (xcb_cursor_context_new(conn, screen, &cctx) != 0) {
+		die("can't create cursor context");
+	}
+
+	/* load cursors */
+	cursors[CURSOR_FLEUR] = xcb_cursor_load_cursor(cctx, "fleur");
+	cursors[CURSOR_PENCIL] = xcb_cursor_load_cursor(cctx, "pencil");
+
 	window = xcb_generate_id(conn);
 
 	xcb_create_window(
 		conn, XCB_COPY_FROM_PARENT, window, screen->root,
 		0, 0, 800, 600, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK,
+		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_CURSOR,
 		(const uint32_t[]) {
 			DEAD_COLOR,
 			XCB_EVENT_MASK_EXPOSURE |
 			XCB_EVENT_MASK_KEY_PRESS |
 			XCB_EVENT_MASK_BUTTON_PRESS |
 			XCB_EVENT_MASK_BUTTON_RELEASE |
-			XCB_EVENT_MASK_POINTER_MOTION
+			XCB_EVENT_MASK_POINTER_MOTION,
+			cursors[CURSOR_PENCIL]
 		}
 	);
 
@@ -340,6 +358,11 @@ destroy_window(void)
 		xcb_free_gc(conn, graphics[i]);
 	}
 
+	for (i = 0; i < CURSOR_COUNT; ++i) {
+		xcb_free_cursor(conn, cursors[i]);
+	}
+
+	xcb_cursor_context_free(cctx);
 	xcb_disconnect(conn);
 }
 
@@ -669,6 +692,7 @@ h_button_press(xcb_button_press_event_t *ev)
 			dragging = 1;
 			mousepos.x = ev->event_x;
 			mousepos.y = ev->event_y;
+			xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_FLEUR]);
 			break;
 		case MOUSE_WHEEL_UP:
 			if (cellsize < MAX_CELLSIZE) {
@@ -696,6 +720,7 @@ h_button_release(xcb_button_release_event_t *ev)
 {
 	if (ev->detail == MOUSE_MIDDLE) {
 		dragging = 0;
+		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_PENCIL]);
 	}
 }
 

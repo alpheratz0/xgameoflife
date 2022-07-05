@@ -2,7 +2,7 @@ VERSION = 0.1.0
 
 CC      = cc
 CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"${VERSION}\"
-LDLIBS  = -lxcb -lm
+LDLIBS  = -lxcb -lxcb-cursor -lm
 LDFLAGS = -s ${LDLIBS}
 
 PREFIX    = /usr/local

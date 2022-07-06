@@ -653,8 +653,10 @@ h_key_press(xcb_key_press_event_t *ev)
 {
 	switch (ev->detail) {
 		case KEY_SPACE:
-			running = !running;
-			render_scene();
+			if (!dragging) {
+				running = !running;
+				render_scene();
+			}
 			break;
 		case KEY_N:
 			if (!running) {
@@ -663,7 +665,7 @@ h_key_press(xcb_key_press_event_t *ev)
 			}
 			break;
 		case KEY_S:
-			if (ev->state & XCB_MOD_MASK_CONTROL) {
+			if (!running && ev->state & XCB_MOD_MASK_CONTROL) {
 				save_board();
 			}
 			break;

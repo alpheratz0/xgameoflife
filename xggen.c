@@ -52,8 +52,8 @@ main(int argc, char **argv)
 	printf("%dx%d\n", c, r);
 
 	if (p != 0) {
-		for (y = 0; y < c; ++y) {
-			for (x = 0; x < r; ++x) {
+		for (y = 0; y < r; ++y) {
+			for (x = 0; x < c; ++x) {
 				if (frand() < p) {
 					printf("%d,%d\n", x, y);
 				}

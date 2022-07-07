@@ -40,10 +40,10 @@ main(int argc, char **argv)
 	c = DEFAULT_COLUMNS;
 	p = DEFAULT_ALIVE_PROB;
 
-	for (--argc, ++argv; argc > 0; --argc, ++argv) {
-		if (strcmp(*argv, "-r") == 0 && (argc - 1) > 0) --argc, r = atoi(*++argv);
-		else if (strcmp(*argv, "-c") == 0 && (argc - 1) > 0) --argc, c = atoi(*++argv);
-		else if (strcmp(*argv, "-p") == 0 && (argc - 1) > 0) --argc, p = atof(*++argv);
+	for (--argc, ++argv; argc > 1; --argc, ++argv) {
+		if (strcmp(*argv, "-r") == 0) --argc, r = atoi(*++argv);
+		else if (strcmp(*argv, "-c") == 0) --argc, c = atoi(*++argv);
+		else if (strcmp(*argv, "-p") == 0) --argc, p = atof(*++argv);
 	}
 
 	p = p < 0 ? 0 : p > 1 ? 1 : p;

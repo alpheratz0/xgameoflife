@@ -790,8 +790,6 @@ main(int argc, char **argv)
 				case XCB_MOTION_NOTIFY:
 					h_motion_notify((xcb_motion_notify_event_t *)(ev));
 					break;
-				default:
-					break;
 			}
 
 			free(ev);

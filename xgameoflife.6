@@ -1,53 +1,42 @@
-.TH XGAMEOFLIFE 6 "July 06, 2022"
-.SH NAME
-xgameoflife \- conway's game of life.
-.SH SYNOPSIS
-\fBxgameoflife\fP [ -hv ] [ -l FILE ]
-.SH OPTIONS
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-show the help message and exit
-.TP
-\fB\-v\fR, \fB\-\-version\fR
+.Dd August 9, 2022
+.Dt XGAMEOFLIFE 6
+.Sh NAME
+.Nm xgameoflife
+.Nd conway's game of life for X
+.Sh SYNOPSIS
+.Nm
+.Op Fl hv
+.Op Fl l Ar file
+.Sh DESCRIPTION
+The game of life is a zero-player game created by John Conway.
+.Sh OPTIONS
+.Bl -tag -width indent
+.It Fl h
+show usage
+.It Fl v
 display the program version
-.TP
-\fB\-l\fR, \fB\-\-load\fR
+.It Fl l
 load saved board
-.SH CONTROLS
-.TP
-\fBmiddle click\fR
-move around
-.TP
-\fBleft click\fR
-toggle hovered cell
-.TP
-\fBwheel up/down\fR
-zoom in/out
-.TP
-\fBspace\fR
-pause/resume
-.TP
-\fBn\fR
-advance to next generation
-.TP
-\fBctrl + s\fR
-save board
-.SH EXIT STATUS
-.TP
-\fB0\fR
-the program terminated successfully
-.TP
-\fB1\fR
-an error occurred
-.SH AUTHOR
-Written by alpheratz0.
-.SH COPYRIGHT
-Copyright \(co 2022 <alpheratz99@protonmail.com>
-.br
-License GPLv2.0: GNU GPL version 2.0 <https://gnu.org/licenses/old-licenses/gpl-2.0.en.html>.
-.br
-This is free software: you are free to change and redistribute it.
-.br
-There is NO WARRANTY, to the extent permitted by law.
-.SH BUGS
+.El
+.Sh CONTROLS
+.Bl -bullet -compact -width indent
+.It
+move around pressing the middle click
+.It
+toggle cells pressing left click
+.It
+zoom in and out using the mouse wheel
+.It
+pause/resume the game with the space key
+.It
+advance to the next generation with the n key
+.It
+save the current board with ctrl+s
+.El
+.Sh SEE ALSO
+.Xr X 7
+.Xr gameoflife 6
+.Sh AUTHORS
+.An alpheratz0 Aq Mt alpheratz99@protonmail.com
+.Sh BUGS
 https://github.com/alpheratz0/xgameoflife/issues

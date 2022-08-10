@@ -42,8 +42,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
-#include <xcb/xproto.h>
 #include <xcb/xcb_cursor.h>
+#include <xcb/xcb_keysyms.h>
+#include <xcb/xproto.h>
+#include <xkbcommon/xkbcommon-keysyms.h>
 
 #define UNUSED                             __attribute__((unused))
 
@@ -65,16 +67,6 @@
 #define MIN_CELLSIZE                       (5)
 #define MAX_CELLSIZE                       (50)
 
-#define MOUSE_LEFT                         (1)
-#define MOUSE_MIDDLE                       (2)
-#define MOUSE_RIGHT                        (3)
-#define MOUSE_WHEEL_UP                     (4)
-#define MOUSE_WHEEL_DOWN                   (5)
-
-#define KEY_SPACE                          (65)
-#define KEY_N                              (57)
-#define KEY_S                              (39)
-
 enum {
 	GC_ALIVE,
 	GC_DEAD,
@@ -94,6 +86,7 @@ enum {
 static xcb_connection_t *conn;
 static xcb_window_t window;
 static xcb_cursor_context_t *cctx;
+static xcb_key_symbols_t *ksyms;
 static xcb_cursor_t cursors[CURSOR_COUNT];
 static xcb_gcontext_t graphics[GC_COUNT];
 
@@ -123,15 +116,26 @@ die(const char *err)
 }
 
 static void
-dief(const char *err, ...)
+dief(const char *fmt, ...)
 {
-	va_list list;
+	va_list args;
+
 	fputs("xgameoflife: ", stderr);
-	va_start(list, err);
-	vfprintf(stderr, err, list);
-	va_end(list);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
 	fputc('\n', stderr);
 	exit(1);
+}
+
+static const char *
+enotnull(const char *str, const char *name)
+{
+	if (NULL == str) {
+		dief("%s cannot be null", name);
+	}
+
+	return str;
 }
 
 static void *
@@ -296,6 +300,7 @@ create_window(void)
 		die("can't create cursor context");
 	}
 
+	ksyms = xcb_key_symbols_alloc(conn);
 	window = xcb_generate_id(conn);
 
 	xcb_create_window(
@@ -308,7 +313,8 @@ create_window(void)
 			XCB_EVENT_MASK_KEY_PRESS |
 			XCB_EVENT_MASK_BUTTON_PRESS |
 			XCB_EVENT_MASK_BUTTON_RELEASE |
-			XCB_EVENT_MASK_POINTER_MOTION
+			XCB_EVENT_MASK_POINTER_MOTION |
+			XCB_EVENT_MASK_KEYMAP_STATE
 		}
 	);
 
@@ -361,6 +367,7 @@ destroy_window(void)
 		xcb_free_cursor(conn, cursors[i]);
 	}
 
+	xcb_key_symbols_free(ksyms);
 	xcb_cursor_context_free(cctx);
 	xcb_disconnect(conn);
 }
@@ -600,26 +607,10 @@ render_scene(void)
 	xcb_flush(conn);
 }
 
-static int
-match_opt(const char *in, const char *sh, const char *lo)
-{
-	return (strcmp(in, sh) == 0) || (strcmp(in, lo) == 0);
-}
-
-static inline void
-print_opt(const char *sh, const char *lo, const char *desc)
-{
-	printf("%7s | %-25s %s\n", sh, lo, desc);
-}
-
 static void
 usage(void)
 {
-	puts("Usage: xgameoflife [ -hv ] [ -l FILE ]");
-	puts("Options are:");
-	print_opt("-h", "--help", "display this message and exit");
-	print_opt("-v", "--version", "display the program version");
-	print_opt("-l", "--load", "load saved board");
+	puts("usage: xgameoflife [-hv] [-l file]");
 	exit(0);
 }
 
@@ -651,20 +642,24 @@ h_expose(UNUSED xcb_expose_event_t *ev)
 static void
 h_key_press(xcb_key_press_event_t *ev)
 {
-	switch (ev->detail) {
-		case KEY_SPACE:
+	xcb_keysym_t key;
+
+	key = xcb_key_symbols_get_keysym(ksyms, ev->detail, 0);
+
+	switch (key) {
+		case XKB_KEY_space:
 			if (!dragging) {
 				running = !running;
 				render_scene();
 			}
 			break;
-		case KEY_N:
+		case XKB_KEY_n:
 			if (!running) {
 				advance_to_next_generation();
 				render_scene();
 			}
 			break;
-		case KEY_S:
+		case XKB_KEY_s:
 			if (!running && ev->state & XCB_MOD_MASK_CONTROL) {
 				save_board();
 			}
@@ -685,23 +680,23 @@ h_button_press(xcb_button_press_event_t *ev)
 	zoom = 0;
 
 	switch (ev->detail) {
-		case MOUSE_LEFT:
+		case XCB_BUTTON_INDEX_1:
 			toggle_cell(hovered.x, hovered.y);
 			render_scene();
 			break;
-		case MOUSE_MIDDLE:
+		case XCB_BUTTON_INDEX_2:
 			dragging = 1;
 			mousepos.x = ev->event_x;
 			mousepos.y = ev->event_y;
 			xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_FLEUR]);
 			xcb_flush(conn);
 			break;
-		case MOUSE_WHEEL_UP:
+		case XCB_BUTTON_INDEX_4:
 			if (cellsize < MAX_CELLSIZE) {
 				zoom = 1;
 			}
 			break;
-		case MOUSE_WHEEL_DOWN:
+		case XCB_BUTTON_INDEX_5:
 			if (cellsize > MIN_CELLSIZE) {
 				zoom = -1;
 			}
@@ -720,7 +715,7 @@ h_button_press(xcb_button_press_event_t *ev)
 static void
 h_button_release(xcb_button_release_event_t *ev)
 {
-	if (ev->detail == MOUSE_MIDDLE) {
+	if (ev->detail == XCB_BUTTON_INDEX_2) {
 		dragging = 0;
 		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_LEFT_PTR]);
 		xcb_flush(conn);
@@ -749,6 +744,12 @@ h_motion_notify(xcb_motion_notify_event_t *ev)
 	}
 }
 
+static void
+h_mapping_notify(xcb_mapping_notify_event_t *ev)
+{
+	xcb_refresh_keyboard_mapping(ksyms, ev);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -756,9 +757,9 @@ main(int argc, char **argv)
 	const char *loadpath = NULL;
 
 	if (++argv, --argc > 0) {
-		if (match_opt(*argv, "-l", "--load") && --argc > 0) loadpath = *++argv;
-		else if (match_opt(*argv, "-h", "--help")) usage();
-		else if (match_opt(*argv, "-v", "--version")) version();
+		if (!strcmp(*argv, "-l")) --argc, loadpath = enotnull(*++argv, "path");
+		else if (!strcmp(*argv, "-h")) usage();
+		else if (!strcmp(*argv, "-v")) version();
 		else if (**argv == '-') dief("invalid option %s", *argv);
 		else dief("unexpected argument: %s", *argv);
 	}
@@ -789,6 +790,9 @@ main(int argc, char **argv)
 					break;
 				case XCB_MOTION_NOTIFY:
 					h_motion_notify((xcb_motion_notify_event_t *)(ev));
+					break;
+				case XCB_MAPPING_NOTIFY:
+					h_mapping_notify((xcb_mapping_notify_event_t *)(ev));
 					break;
 			}
 

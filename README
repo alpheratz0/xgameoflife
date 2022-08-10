@@ -5,7 +5,8 @@ using the xcb library.
 
 ]|~ build ~|[
 
-In order to build xgameoflife you will need xcb and xcb-cursor headers.
+In order to build xgameoflife you will need xcb, xcb-cursor
+and xcb-keysyms headers.
 $ make
 
 ]|~ license ~|[

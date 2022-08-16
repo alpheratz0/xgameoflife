@@ -733,8 +733,7 @@ h_motion_notify(xcb_motion_notify_event_t *ev)
 		mousepos.y = ev->event_y;
 
 		render_scene();
-	}
-	else {
+	} else {
 		hovered.x = floor(((float)(ev->event_x - offset.x)) / cellsize);
 		hovered.y = floor(((float)(ev->event_y - offset.y)) / cellsize);
 

@@ -225,7 +225,7 @@ xcolor(uint32_t c)
 	id = xcb_generate_id(conn);
 
 	mask |= XCB_GC_FOREGROUND; values[0] = c;
-	mask |= XCB_GC_FOREGROUND; values[1] = 0;
+	mask |= XCB_GC_GRAPHICS_EXPOSURES; values[1] = 0;
 
 	xcb_create_gc(conn, id, window, mask, values);
 

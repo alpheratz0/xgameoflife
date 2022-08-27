@@ -182,7 +182,6 @@ xatom(const char *name)
 	xcb_intern_atom_cookie_t cookie;
 	xcb_intern_atom_reply_t *reply;
 
-	error = NULL;
 	cookie = xcb_intern_atom(conn, 0, strlen(name), name);
 	reply = xcb_intern_atom_reply(conn, cookie, &error);
 
@@ -248,7 +247,6 @@ xsize(int16_t *width, int16_t *height)
 	xcb_get_geometry_cookie_t cookie;
 	xcb_get_geometry_reply_t *reply;
 
-	error = NULL;
 	cookie = xcb_get_geometry(conn, window);
 	reply = xcb_get_geometry_reply(conn, cookie, &error);
 

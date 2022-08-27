@@ -119,10 +119,8 @@ dief(const char *fmt, ...)
 static const char *
 enotnull(const char *str, const char *name)
 {
-	if (NULL == str) {
+	if (NULL == str)
 		dief("%s cannot be null", name);
-	}
-
 	return str;
 }
 
@@ -131,9 +129,8 @@ xcalloc(size_t n, size_t size)
 {
 	void *p;
 
-	if (NULL == (p = calloc(n, size))) {
+	if (NULL == (p = calloc(n, size)))
 		die("error while calling calloc, no memory available");
-	}
 
 	return p;
 }
@@ -160,13 +157,11 @@ blockwait(int nanoseconds)
 	clock_gettime(CLOCK_MONOTONIC, &now_ts);
 
 	/* check if we already reached the end */
-	if (now_ts.tv_sec > end_ts.tv_sec) {
+	if (now_ts.tv_sec > end_ts.tv_sec)
 		return;
-	}
 
-	if (now_ts.tv_sec == end_ts.tv_sec && now_ts.tv_nsec >= end_ts.tv_nsec) {
+	if (now_ts.tv_sec == end_ts.tv_sec && now_ts.tv_nsec >= end_ts.tv_nsec)
 		return;
-	}
 
 	delta_ts.tv_sec = end_ts.tv_sec - now_ts.tv_sec;
 	delta_ts.tv_nsec = end_ts.tv_nsec - now_ts.tv_nsec;
@@ -191,10 +186,9 @@ xatom(const char *name)
 	cookie = xcb_intern_atom(conn, 0, strlen(name), name);
 	reply = xcb_intern_atom_reply(conn, cookie, &error);
 
-	if (NULL != error) {
+	if (NULL != error)
 		dief("xcb_intern_atom failed with error code: %d",
 				(int)(error->error_code));
-	}
 
 	atom = reply->atom;
 	free(reply);
@@ -234,9 +228,8 @@ xfont(const char *name, uint32_t foreground, uint32_t background)
 	cookie = xcb_open_font_checked(conn, font, strlen(name), name);
 	mask = 0;
 
-	if (xcb_request_check(conn, cookie)) {
+	if (xcb_request_check(conn, cookie))
 		dief("font not found: %s", name);
-	}
 
 	mask |= XCB_GC_FOREGROUND; values[0] = foreground;
 	mask |= XCB_GC_BACKGROUND; values[1] = background;
@@ -259,10 +252,9 @@ xsize(int16_t *width, int16_t *height)
 	cookie = xcb_get_geometry(conn, window);
 	reply = xcb_get_geometry_reply(conn, cookie, &error);
 
-	if (NULL != error) {
+	if (NULL != error)
 		dief("xcb_get_geometry failed with error code: %d",
 				(int)(error->error_code));
-	}
 
 	*width = reply->width;
 	*height = reply->height;
@@ -275,35 +267,31 @@ create_window(void)
 {
 	xcb_screen_t *screen;
 
-	if (xcb_connection_has_error(conn = xcb_connect(NULL, NULL))) {
+	if (xcb_connection_has_error(conn = xcb_connect(NULL, NULL)))
 		die("can't open display");
-	}
 
-	if (NULL == (screen = xcb_setup_roots_iterator(xcb_get_setup(conn)).data)) {
-		xcb_disconnect(conn);
+	if (NULL == (screen = xcb_setup_roots_iterator(xcb_get_setup(conn)).data))
 		die("can't get default screen");
-	}
 
-	if (xcb_cursor_context_new(conn, screen, &cctx) != 0) {
+	if (xcb_cursor_context_new(conn, screen, &cctx) != 0)
 		die("can't create cursor context");
-	}
 
 	ksyms = xcb_key_symbols_alloc(conn);
 	window = xcb_generate_id(conn);
 
-	xcb_create_window(
+	xcb_create_window_aux(
 		conn, XCB_COPY_FROM_PARENT, window, screen->root,
 		0, 0, 800, 600, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
 		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK,
-		(const uint32_t[]) {
-			DEAD_COLOR,
-			XCB_EVENT_MASK_EXPOSURE |
-			XCB_EVENT_MASK_KEY_PRESS |
-			XCB_EVENT_MASK_BUTTON_PRESS |
-			XCB_EVENT_MASK_BUTTON_RELEASE |
-			XCB_EVENT_MASK_POINTER_MOTION |
-			XCB_EVENT_MASK_KEYMAP_STATE
-		}
+		(const xcb_create_window_value_list_t []) {{
+			.background_pixel = dead_color,
+			.event_mask = XCB_EVENT_MASK_EXPOSURE |
+			              XCB_EVENT_MASK_KEY_PRESS |
+			              XCB_EVENT_MASK_BUTTON_PRESS |
+			              XCB_EVENT_MASK_BUTTON_RELEASE |
+			              XCB_EVENT_MASK_POINTER_MOTION |
+			              XCB_EVENT_MASK_KEYMAP_STATE
+		}}
 	);
 
 	/* set WM_NAME */
@@ -328,11 +316,11 @@ create_window(void)
 	);
 
 	/* load graphics */
-	graphics[GC_DEAD] = xcolor(DEAD_COLOR);
-	graphics[GC_ALIVE] = xcolor(ALIVE_COLOR);
-	graphics[GC_BORDER] = xcolor(BORDER_COLOR);
-	graphics[GC_TEXT] = xfont("fixed", TEXT_COLOR, BAR_COLOR);
-	graphics[GC_BAR] = xcolor(BAR_COLOR);
+	graphics[GC_DEAD] = xcolor(dead_color);
+	graphics[GC_ALIVE] = xcolor(alive_color);
+	graphics[GC_BORDER] = xcolor(border_color);
+	graphics[GC_TEXT] = xfont("fixed", text_color, bar_color);
+	graphics[GC_BAR] = xcolor(bar_color);
 
 	/* load cursors */
 	cursors[CURSOR_FLEUR] = xcb_cursor_load_cursor(cctx, "fleur");
@@ -347,13 +335,11 @@ destroy_window(void)
 {
 	size_t i;
 
-	for (i = 0; i < GC_COUNT; ++i) {
+	for (i = 0; i < GC_COUNT; ++i)
 		xcb_free_gc(conn, graphics[i]);
-	}
 
-	for (i = 0; i < CURSOR_COUNT; ++i) {
+	for (i = 0; i < CURSOR_COUNT; ++i)
 		xcb_free_cursor(conn, cursors[i]);
-	}
 
 	xcb_key_symbols_free(ksyms);
 	xcb_cursor_context_free(cctx);
@@ -368,7 +354,7 @@ create_board(int32_t c, int32_t r)
 
 	columns = c;
 	rows = r;
-	cellsize = INITIAL_CELLSIZE;
+	cellsize = initial_cellsize;
 }
 
 static uint8_t
@@ -403,11 +389,9 @@ count_neighbours_alive(int x, int y)
 
 	count = -get_cell(x, y);
 
-	for (dx = -1; dx < 2; ++dx) {
-		for (dy = -1; dy < 2; ++dy) {
+	for (dx = -1; dx < 2; ++dx)
+		for (dy = -1; dy < 2; ++dy)
 			count += get_cell(x + dx, y + dy) ? 1 : 0;
-		}
-	}
 
 	return count;
 }
@@ -444,19 +428,15 @@ save_board(void)
 	now = localtime((const time_t[]) { time(NULL) });
 	strftime(filename, sizeof(filename), "%Y%m%d%H%M%S.xg", now);
 
-	if (NULL == (fp = fopen(filename, "w"))) {
+	if (NULL == (fp = fopen(filename, "w")))
 		dief("failed to open file %s: %s", filename, strerror(errno));
-	}
 
 	fprintf(fp, "%dx%d\n", columns, rows);
 
-	for (x = 0; x < columns; ++x) {
-		for (y = 0; y < rows; ++y) {
-			if (get_cell(x, y)) {
+	for (x = 0; x < columns; ++x)
+		for (y = 0; y < rows; ++y)
+			if (get_cell(x, y))
 				fprintf(fp, "%d,%d\n", x, y);
-			}
-		}
-	}
 
 	fclose(fp);
 }
@@ -467,22 +447,20 @@ load_board(const char *path)
 	int x, y;
 	FILE *fp;
 
-	if (NULL == (fp = fopen(path, "r"))) {
+	if (NULL == (fp = fopen(path, "r")))
 		dief("failed to open file %s: %s", path, strerror(errno));
-	}
 
 	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
-		columns = DEFAULT_COLUMNS;
-		rows = DEFAULT_ROWS;
+		columns = default_columns;
+		rows = default_rows;
 
 		rewind(fp);
 	}
 
 	create_board(columns, rows);
 
-	while (fscanf(fp, "%d,%d\n", &x, &y) == 2) {
+	while (fscanf(fp, "%d,%d\n", &x, &y) == 2)
 		set_cell(x, y, 1);
-	}
 
 	fclose(fp);
 }
@@ -548,12 +526,8 @@ render_scene(void)
 		}
 	}
 
-	if (rectc != 0) {
-		xcb_poly_fill_rectangle(
-			conn, window, graphics[GC_ALIVE],
-			rectc, rects
-		);
-	}
+	if (rectc != 0)
+		xcb_poly_fill_rectangle(conn, window, graphics[GC_ALIVE], rectc, rects);
 
 #define DRAW_LINE(x0,y0,x1,y1) do {                             \
 	line[0].x = (x0); line[0].y = (y0);                         \
@@ -564,28 +538,23 @@ render_scene(void)
 	);                                                          \
 } while (0)
 
-	for (i = -1; i < vcolumns + 1; ++i) {
+	for (i = -1; i < vcolumns + 1; ++i)
 		DRAW_LINE(i*cellsize+celloffx, 0, i*cellsize+celloffx, height);
-	}
 
-	for (i = -1; i < vrows + 1; ++i) {
+	for (i = -1; i < vrows + 1; ++i)
 		DRAW_LINE(0, i*cellsize+celloffy, width, i*cellsize+celloffy);
-	}
 
 #undef DRAW_LINE
 
-	if (!running) {
+	if (!running)
 		snprintf(text, sizeof(text), "* PAUSED (%hd, %hd)", hovered.x, hovered.y);
-	}
 
 	box.x = 0;
 	box.y = height - INFO_BAR_HEIGHT;
 	box.width = width;
 	box.height = INFO_BAR_HEIGHT;
 
-	xcb_poly_fill_rectangle(
-		conn, window, graphics[GC_BAR], 1, &box
-	);
+	xcb_poly_fill_rectangle(conn, window, graphics[GC_BAR], 1, &box);
 
 	xcb_image_text_8_checked(
 		conn, strlen(text), window, graphics[GC_TEXT], INFO_BAR_HEIGHT / 2,
@@ -648,9 +617,8 @@ h_key_press(xcb_key_press_event_t *ev)
 			}
 			break;
 		case XKB_KEY_s:
-			if (!running && ev->state & XCB_MOD_MASK_CONTROL) {
+			if (!running && ev->state & XCB_MOD_MASK_CONTROL)
 				save_board();
-			}
 			break;
 	}
 }
@@ -661,9 +629,8 @@ h_button_press(xcb_button_press_event_t *ev)
 	int16_t width, height;
 	int16_t zoom;
 
-	if (running) {
+	if (running)
 		return;
-	}
 
 	zoom = 0;
 
@@ -680,14 +647,12 @@ h_button_press(xcb_button_press_event_t *ev)
 			xcb_flush(conn);
 			break;
 		case XCB_BUTTON_INDEX_4:
-			if (cellsize < MAX_CELLSIZE) {
+			if (cellsize < max_cellsize)
 				zoom = 1;
-			}
 			break;
 		case XCB_BUTTON_INDEX_5:
-			if (cellsize > MIN_CELLSIZE) {
+			if (cellsize > min_cellsize)
 				zoom = -1;
-			}
 			break;
 	}
 
@@ -716,18 +681,15 @@ h_motion_notify(xcb_motion_notify_event_t *ev)
 	if (dragging) {
 		offset.x += ev->event_x - mousepos.x;
 		offset.y += ev->event_y - mousepos.y;
-
 		mousepos.x = ev->event_x;
 		mousepos.y = ev->event_y;
-
 		render_scene();
 	} else {
 		hovered.x = floor(((float)(ev->event_x - offset.x)) / cellsize);
 		hovered.y = floor(((float)(ev->event_y - offset.y)) / cellsize);
 
-		if (!running) {
+		if (!running)
 			render_scene();
-		}
 	}
 }
 
@@ -753,7 +715,7 @@ main(int argc, char **argv)
 
 	create_window();
 
-	if (NULL == loadpath) create_board(DEFAULT_COLUMNS, DEFAULT_ROWS);
+	if (NULL == loadpath) create_board(default_columns, default_rows);
 	else load_board(loadpath);
 
 	while (1) {
@@ -789,7 +751,7 @@ main(int argc, char **argv)
 		if (running) {
 			advance_to_next_generation();
 			render_scene();
-			blockwait(NANOSECONDS_PER_SECOND / GENERATIONS_PER_SECOND);
+			blockwait(NANOSECONDS_PER_SECOND / generations_per_second);
 		}
 	}
 

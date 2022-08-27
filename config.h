@@ -1,14 +1,14 @@
-#define DEAD_COLOR                         (0x000000)
-#define ALIVE_COLOR                        (0x30a3f4)
-#define BORDER_COLOR                       (0x191919)
-#define BAR_COLOR                          (0xf0f72a)
-#define TEXT_COLOR                         (0x000000)
+/* theme */
+const uint32_t dead_color = 0x000000;
+const uint32_t alive_color = 0x30a3f4;
+const uint32_t border_color = 0x191919;
+const uint32_t bar_color = 0xf0f72a;
+const uint32_t text_color = 0x000000;
 
-#define GENERATIONS_PER_SECOND             (12)
-
-#define DEFAULT_COLUMNS                    (300)
-#define DEFAULT_ROWS                       (300)
-
-#define INITIAL_CELLSIZE                   (20)
-#define MIN_CELLSIZE                       (5)
-#define MAX_CELLSIZE                       (50)
+/* misc */
+const int generations_per_second = 12;
+const int default_columns = 300;
+const int default_rows = 300;
+const int initial_cellsize = 20;
+const int min_cellsize = 5;
+const int max_cellsize = 50;

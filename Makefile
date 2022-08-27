@@ -3,7 +3,10 @@
 
 include config.mk
 
-all: xgameoflife
+all: config.h xgameoflife
+
+config.h: config.def.h
+	cp config.def.h config.h
 
 xgameoflife: xgameoflife.o
 	$(CC) $(LDFLAGS) -o xgameoflife xgameoflife.o $(LDLIBS)
@@ -21,7 +24,8 @@ install: all
 
 dist: clean
 	mkdir -p xgameoflife-$(VERSION)
-	cp -R COPYING config.mk Makefile README xgameoflife.6 xgameoflife.c xgameoflife-$(VERSION)
+	cp -R COPYING config.mk Makefile README xgameoflife.6 config.def.h \
+		xgameoflife.c xgameoflife-$(VERSION)
 	tar -cf xgameoflife-$(VERSION).tar xgameoflife-$(VERSION)
 	gzip xgameoflife-$(VERSION).tar
 	rm -rf xgameoflife-$(VERSION)

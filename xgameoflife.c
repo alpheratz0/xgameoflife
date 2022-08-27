@@ -55,9 +55,6 @@
 #define FONT_HEIGHT                        (8)
 #define INFO_BAR_HEIGHT                    (20)
 
-#define MIN_CELLSIZE                       (5)
-#define MAX_CELLSIZE                       (50)
-
 enum {
 	GC_ALIVE,
 	GC_DEAD,

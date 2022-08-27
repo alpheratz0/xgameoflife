@@ -8,4 +8,7 @@
 
 #define DEFAULT_COLUMNS                    (300)
 #define DEFAULT_ROWS                       (300)
+
 #define INITIAL_CELLSIZE                   (20)
+#define MIN_CELLSIZE                       (5)
+#define MAX_CELLSIZE                       (50)

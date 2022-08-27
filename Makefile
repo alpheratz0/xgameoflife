@@ -1,15 +1,7 @@
 .POSIX:
 .PHONY: all clean install uninstall dist
 
-VERSION = 0.1.0
-
-CC      = cc
-CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"$(VERSION)\"
-LDLIBS  = -lxcb -lxcb-cursor -lxcb-keysyms -lm
-LDFLAGS = -s
-
-PREFIX    = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+include config.mk
 
 all: xgameoflife
 
@@ -29,7 +21,7 @@ install: all
 
 dist: clean
 	mkdir -p xgameoflife-$(VERSION)
-	cp -R COPYING Makefile README xgameoflife.6 xgameoflife.c xgameoflife-$(VERSION)
+	cp -R COPYING config.mk Makefile README xgameoflife.6 xgameoflife.c xgameoflife-$(VERSION)
 	tar -cf xgameoflife-$(VERSION).tar xgameoflife-$(VERSION)
 	gzip xgameoflife-$(VERSION).tar
 	rm -rf xgameoflife-$(VERSION)

@@ -55,10 +55,6 @@
 #define FONT_HEIGHT                        (8)
 #define INFO_BAR_HEIGHT                    (20)
 
-#define DEFAULT_COLUMNS                    (300)
-#define DEFAULT_ROWS                       (300)
-#define DEFAULT_CELLSIZE                   (20)
-
 #define MIN_CELLSIZE                       (5)
 #define MAX_CELLSIZE                       (50)
 
@@ -375,7 +371,7 @@ create_board(int32_t c, int32_t r)
 
 	columns = c;
 	rows = r;
-	cellsize = DEFAULT_CELLSIZE;
+	cellsize = INITIAL_CELLSIZE;
 }
 
 static uint8_t

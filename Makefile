@@ -29,7 +29,7 @@ install: all
 
 dist: clean
 	mkdir -p xgameoflife-$(VERSION)
-	cp -R LICENSE Makefile README xgameoflife.6 xgameoflife.c xgameoflife-$(VERSION)
+	cp -R COPYING Makefile README xgameoflife.6 xgameoflife.c xgameoflife-$(VERSION)
 	tar -cf xgameoflife-$(VERSION).tar xgameoflife-$(VERSION)
 	gzip xgameoflife-$(VERSION).tar
 	rm -rf xgameoflife-$(VERSION)

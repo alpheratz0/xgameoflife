@@ -287,8 +287,7 @@ create_window(void)
 			              XCB_EVENT_MASK_KEY_PRESS |
 			              XCB_EVENT_MASK_BUTTON_PRESS |
 			              XCB_EVENT_MASK_BUTTON_RELEASE |
-			              XCB_EVENT_MASK_POINTER_MOTION |
-			              XCB_EVENT_MASK_KEYMAP_STATE
+			              XCB_EVENT_MASK_POINTER_MOTION
 		}}
 	);
 
@@ -694,7 +693,8 @@ h_motion_notify(xcb_motion_notify_event_t *ev)
 static void
 h_mapping_notify(xcb_mapping_notify_event_t *ev)
 {
-	xcb_refresh_keyboard_mapping(ksyms, ev);
+	if (ev->count > 0)
+		xcb_refresh_keyboard_mapping(ksyms, ev);
 }
 
 int

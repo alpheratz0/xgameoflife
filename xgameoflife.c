@@ -97,14 +97,7 @@ static xcb_point_t mousepos;
 static struct timespec begin_ts;
 
 static void
-die(const char *err)
-{
-	fprintf(stderr, "xgameoflife: %s\n", err);
-	exit(1);
-}
-
-static void
-dief(const char *fmt, ...)
+die(const char *fmt, ...)
 {
 	va_list args;
 
@@ -120,7 +113,7 @@ static const char *
 enotnull(const char *str, const char *name)
 {
 	if (NULL == str)
-		dief("%s cannot be null", name);
+		die("%s cannot be null", name);
 	return str;
 }
 
@@ -186,7 +179,7 @@ xatom(const char *name)
 	reply = xcb_intern_atom_reply(conn, cookie, &error);
 
 	if (NULL != error)
-		dief("xcb_intern_atom failed with error code: %d",
+		die("xcb_intern_atom failed with error code: %d",
 				(int)(error->error_code));
 
 	atom = reply->atom;
@@ -228,7 +221,7 @@ xfont(const char *name, uint32_t foreground, uint32_t background)
 	mask = 0;
 
 	if (xcb_request_check(conn, cookie))
-		dief("font not found: %s", name);
+		die("font not found: %s", name);
 
 	mask |= XCB_GC_FOREGROUND; values[0] = foreground;
 	mask |= XCB_GC_BACKGROUND; values[1] = background;
@@ -251,7 +244,7 @@ xsize(int16_t *width, int16_t *height)
 	reply = xcb_get_geometry_reply(conn, cookie, &error);
 
 	if (NULL != error)
-		dief("xcb_get_geometry failed with error code: %d",
+		die("xcb_get_geometry failed with error code: %d",
 				(int)(error->error_code));
 
 	*width = reply->width;
@@ -426,7 +419,7 @@ save_board(void)
 	strftime(filename, sizeof(filename), "%Y%m%d%H%M%S.xg", now);
 
 	if (NULL == (fp = fopen(filename, "w")))
-		dief("failed to open file %s: %s", filename, strerror(errno));
+		die("failed to open file %s: %s", filename, strerror(errno));
 
 	fprintf(fp, "%dx%d\n", columns, rows);
 
@@ -445,7 +438,7 @@ load_board(const char *path)
 	FILE *fp;
 
 	if (NULL == (fp = fopen(path, "r")))
-		dief("failed to open file %s: %s", path, strerror(errno));
+		die("failed to open file %s: %s", path, strerror(errno));
 
 	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
 		columns = default_columns;
@@ -701,14 +694,21 @@ int
 main(int argc, char **argv)
 {
 	xcb_generic_event_t *ev;
-	const char *loadpath = NULL;
+	const char *loadpath;
 
-	if (++argv, --argc > 0) {
-		if (!strcmp(*argv, "-l")) --argc, loadpath = enotnull(*++argv, "path");
-		else if (!strcmp(*argv, "-h")) usage();
-		else if (!strcmp(*argv, "-v")) version();
-		else if (**argv == '-') dief("invalid option %s", *argv);
-		else dief("unexpected argument: %s", *argv);
+	loadpath = NULL;
+
+	while (++argv, --argc > 0) {
+		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
+			switch ((*argv)[1]) {
+				case 'h': usage(); break;
+				case 'v': version(); break;
+				case 'l': --argc; loadpath = enotnull(*++argv, "path"); break;
+				default: die("invalid option %s", *argv); break;
+			}
+		} else {
+			die("unexpected argument: %s", *argv);
+		}
 	}
 
 	create_window();

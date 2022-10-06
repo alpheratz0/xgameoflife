@@ -2,7 +2,7 @@ Conway's game of life implemented in the C programming language
 using the xcb library.
 For more information about it's usage check `man xgameoflife`.
 
-This program requires libxcb, libxcb-cursor and
+This program requires libxcb, libxcb-cursor, libxcb-xkb and
 libxcb-keysyms to be installed.
 In order to build this program you need to run `make`.
 

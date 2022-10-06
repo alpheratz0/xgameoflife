@@ -44,6 +44,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
+#include <xcb/xkb.h>
 #include <xcb/xproto.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
 
@@ -278,6 +279,7 @@ create_window(void)
 			.background_pixel = dead_color,
 			.event_mask = XCB_EVENT_MASK_EXPOSURE |
 			              XCB_EVENT_MASK_KEY_PRESS |
+			              XCB_EVENT_MASK_KEY_RELEASE |
 			              XCB_EVENT_MASK_BUTTON_PRESS |
 			              XCB_EVENT_MASK_BUTTON_RELEASE |
 			              XCB_EVENT_MASK_POINTER_MOTION
@@ -315,6 +317,13 @@ create_window(void)
 	/* load cursors */
 	cursors[CURSOR_FLEUR] = xcb_cursor_load_cursor(cctx, "fleur");
 	cursors[CURSOR_LEFT_PTR] = xcb_cursor_load_cursor(cctx, "left_ptr");
+
+	xcb_xkb_use_extension(conn, XCB_XKB_MAJOR_VERSION, XCB_XKB_MINOR_VERSION);
+
+	xcb_xkb_per_client_flags(
+		conn, XCB_XKB_ID_USE_CORE_KBD,
+		XCB_XKB_PER_CLIENT_FLAG_DETECTABLE_AUTO_REPEAT, 1, 0, 0, 0
+	);
 
 	xcb_map_window(conn, window);
 	xcb_flush(conn);
@@ -606,11 +615,18 @@ h_key_press(xcb_key_press_event_t *ev)
 				render_scene();
 			}
 			break;
-		case XKB_KEY_s:
-			if (!running && ev->state & XCB_MOD_MASK_CONTROL)
-				save_board();
-			break;
 	}
+}
+
+static void
+h_key_release(xcb_key_release_event_t *ev)
+{
+	xcb_keysym_t key;
+
+	key = xcb_key_symbols_get_keysym(ksyms, ev->detail, 0);
+
+	if (!running && key == XKB_KEY_s && ev->state & XCB_MOD_MASK_CONTROL)
+		save_board();
 }
 
 static void
@@ -728,6 +744,9 @@ main(int argc, char **argv)
 					break;
 				case XCB_KEY_PRESS:
 					h_key_press((xcb_key_press_event_t *)(ev));
+					break;
+				case XCB_KEY_RELEASE:
+					h_key_release((xcb_key_release_event_t *)(ev));
 					break;
 				case XCB_BUTTON_PRESS:
 					h_button_press((xcb_button_press_event_t *)(ev));

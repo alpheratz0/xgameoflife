@@ -288,23 +288,21 @@ create_window(void)
 
 	/* set WM_NAME */
 	xcb_change_property(
-		conn, XCB_PROP_MODE_REPLACE, window,
-		XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
-		sizeof("xgameoflife") - 1, "xgameoflife"
+		conn, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_NAME,
+		XCB_ATOM_STRING, 8, strlen("xgameoflife"), "xgameoflife"
 	);
 
 	/* set WM_CLASS */
 	xcb_change_property(
-		conn, XCB_PROP_MODE_REPLACE, window,
-		XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8,
-		sizeof("xgameoflife") * 2, "xgameoflife\0xgameoflife\0"
+		conn, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
+		XCB_ATOM_STRING, 8, strlen("xgameoflife\0xgameoflife\0"),
+		"xgameoflife\0xgameoflife\0"
 	);
 
 	/* add WM_DELETE_WINDOW to WM_PROTOCOLS */
 	xcb_change_property(
-		conn, XCB_PROP_MODE_REPLACE, window,
-		xatom("WM_PROTOCOLS"), XCB_ATOM_ATOM, 32, 1,
-		(const xcb_atom_t[]) { xatom("WM_DELETE_WINDOW") }
+		conn, XCB_PROP_MODE_REPLACE, window, xatom("WM_PROTOCOLS"),
+		XCB_ATOM_ATOM, 32, 1, (const xcb_atom_t []) { xatom("WM_DELETE_WINDOW") }
 	);
 
 	/* load graphics */
@@ -736,30 +734,14 @@ main(int argc, char **argv)
 		blockstart();
 		while ((ev = xcb_poll_for_event(conn))) {
 			switch (ev->response_type & ~0x80) {
-				case XCB_CLIENT_MESSAGE:
-					h_client_message((xcb_client_message_event_t *)(ev));
-					break;
-				case XCB_EXPOSE:
-					h_expose((xcb_expose_event_t *)(ev));
-					break;
-				case XCB_KEY_PRESS:
-					h_key_press((xcb_key_press_event_t *)(ev));
-					break;
-				case XCB_KEY_RELEASE:
-					h_key_release((xcb_key_release_event_t *)(ev));
-					break;
-				case XCB_BUTTON_PRESS:
-					h_button_press((xcb_button_press_event_t *)(ev));
-					break;
-				case XCB_BUTTON_RELEASE:
-					h_button_release((xcb_button_release_event_t *)(ev));
-					break;
-				case XCB_MOTION_NOTIFY:
-					h_motion_notify((xcb_motion_notify_event_t *)(ev));
-					break;
-				case XCB_MAPPING_NOTIFY:
-					h_mapping_notify((xcb_mapping_notify_event_t *)(ev));
-					break;
+				case XCB_CLIENT_MESSAGE:   h_client_message((void *)(ev)); break;
+				case XCB_EXPOSE:           h_expose((void *)(ev)); break;
+				case XCB_KEY_PRESS:        h_key_press((void *)(ev)); break;
+				case XCB_KEY_RELEASE:      h_key_release((void *)(ev)); break;
+				case XCB_BUTTON_PRESS:     h_button_press((void *)(ev)); break;
+				case XCB_BUTTON_RELEASE:   h_button_release((void *)(ev)); break;
+				case XCB_MOTION_NOTIFY:    h_motion_notify((void *)(ev)); break;
+				case XCB_MAPPING_NOTIFY:   h_mapping_notify((void *)(ev)); break;
 			}
 
 			free(ev);

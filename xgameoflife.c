@@ -388,7 +388,7 @@ count_neighbours_alive(int x, int y)
 
 	for (dx = -1; dx < 2; ++dx)
 		for (dy = -1; dy < 2; ++dy)
-			count += get_cell(x + dx, y + dy) ? 1 : 0;
+			count += get_cell(x + dx, y + dy);
 
 	return count;
 }

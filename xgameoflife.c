@@ -110,14 +110,6 @@ die(const char *fmt, ...)
 	exit(1);
 }
 
-static const char *
-enotnull(const char *str, const char *name)
-{
-	if (NULL == str)
-		die("%s cannot be null", name);
-	return str;
-}
-
 static void *
 xcalloc(size_t n, size_t size)
 {
@@ -444,8 +436,11 @@ load_board(const char *path)
 	int x, y;
 	FILE *fp;
 
-	if (NULL == (fp = fopen(path, "r")))
+	if (strcmp(path, "-") == 0) {
+		fp = stdin;
+	} else if (NULL == (fp = fopen(path, "r"))) {
 		die("failed to open file %s: %s", path, strerror(errno));
+	}
 
 	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
 		columns = default_columns;
@@ -459,7 +454,8 @@ load_board(const char *path)
 	while (fscanf(fp, "%d,%d\n", &x, &y) == 2)
 		set_cell(x, y, 1);
 
-	fclose(fp);
+	if (fp != stdin)
+		fclose(fp);
 }
 
 static void
@@ -564,7 +560,7 @@ render_scene(void)
 static void
 usage(void)
 {
-	puts("usage: xgameoflife [-hv] [-l file]");
+	puts("usage: xgameoflife [-hv] [file]");
 	exit(0);
 }
 
@@ -717,11 +713,12 @@ main(int argc, char **argv)
 			switch ((*argv)[1]) {
 				case 'h': usage(); break;
 				case 'v': version(); break;
-				case 'l': --argc; loadpath = enotnull(*++argv, "path"); break;
 				default: die("invalid option %s", *argv); break;
 			}
 		} else {
-			die("unexpected argument: %s", *argv);
+			if (loadpath != NULL)
+				die("unexpected argument: %s", *argv);
+			loadpath = *argv;
 		}
 	}
 

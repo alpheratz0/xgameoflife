@@ -51,11 +51,11 @@
 
 #include "config.h"
 
-#define UNUSED                             __attribute__((unused))
+#define UNUSED __attribute__((unused))
 
-#define NANOSECONDS_PER_SECOND             (1000*1000*1000)
-#define FONT_HEIGHT                        (8)
-#define INFO_BAR_HEIGHT                    (20)
+#define NANOSECONDS_PER_SECOND (1000*1000*1000)
+#define FONT_HEIGHT 8
+#define INFO_BAR_HEIGHT 20
 
 enum {
 	GC_ALIVE,
@@ -598,18 +598,18 @@ h_key_press(xcb_key_press_event_t *ev)
 	key = xcb_key_symbols_get_keysym(ksyms, ev->detail, 0);
 
 	switch (key) {
-		case XKB_KEY_space:
-			if (!dragging) {
-				running = !running;
-				render_scene();
-			}
-			break;
-		case XKB_KEY_n:
-			if (!running) {
-				advance_to_next_generation();
-				render_scene();
-			}
-			break;
+	case XKB_KEY_space:
+		if (!dragging) {
+			running = !running;
+			render_scene();
+		}
+		break;
+	case XKB_KEY_n:
+		if (!running) {
+			advance_to_next_generation();
+			render_scene();
+		}
+		break;
 	}
 }
 
@@ -636,25 +636,25 @@ h_button_press(xcb_button_press_event_t *ev)
 	zoom = 0;
 
 	switch (ev->detail) {
-		case XCB_BUTTON_INDEX_1:
-			toggle_cell(hovered.x, hovered.y);
-			render_scene();
-			break;
-		case XCB_BUTTON_INDEX_2:
-			dragging = 1;
-			mousepos.x = ev->event_x;
-			mousepos.y = ev->event_y;
-			xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_FLEUR]);
-			xcb_flush(conn);
-			break;
-		case XCB_BUTTON_INDEX_4:
-			if (cellsize < max_cellsize)
-				zoom = 1;
-			break;
-		case XCB_BUTTON_INDEX_5:
-			if (cellsize > min_cellsize)
-				zoom = -1;
-			break;
+	case XCB_BUTTON_INDEX_1:
+		toggle_cell(hovered.x, hovered.y);
+		render_scene();
+		break;
+	case XCB_BUTTON_INDEX_2:
+		dragging = 1;
+		mousepos.x = ev->event_x;
+		mousepos.y = ev->event_y;
+		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_FLEUR]);
+		xcb_flush(conn);
+		break;
+	case XCB_BUTTON_INDEX_4:
+		if (cellsize < max_cellsize)
+			zoom = 1;
+		break;
+	case XCB_BUTTON_INDEX_5:
+		if (cellsize > min_cellsize)
+			zoom = -1;
+		break;
 	}
 
 	if (zoom) {
@@ -712,9 +712,9 @@ main(int argc, char **argv)
 	while (++argv, --argc > 0) {
 		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
 			switch ((*argv)[1]) {
-				case 'h': usage(); break;
-				case 'v': version(); break;
-				default: die("invalid option %s", *argv); break;
+			case 'h': usage(); break;
+			case 'v': version(); break;
+			default: die("invalid option %s", *argv); break;
 			}
 		} else {
 			if (loadpath != NULL)
@@ -732,14 +732,14 @@ main(int argc, char **argv)
 		blockstart();
 		while ((ev = xcb_poll_for_event(conn))) {
 			switch (ev->response_type & ~0x80) {
-				case XCB_CLIENT_MESSAGE:   h_client_message((void *)(ev)); break;
-				case XCB_EXPOSE:           h_expose((void *)(ev)); break;
-				case XCB_KEY_PRESS:        h_key_press((void *)(ev)); break;
-				case XCB_KEY_RELEASE:      h_key_release((void *)(ev)); break;
-				case XCB_BUTTON_PRESS:     h_button_press((void *)(ev)); break;
-				case XCB_BUTTON_RELEASE:   h_button_release((void *)(ev)); break;
-				case XCB_MOTION_NOTIFY:    h_motion_notify((void *)(ev)); break;
-				case XCB_MAPPING_NOTIFY:   h_mapping_notify((void *)(ev)); break;
+			case XCB_CLIENT_MESSAGE:   h_client_message((void *)(ev)); break;
+			case XCB_EXPOSE:           h_expose((void *)(ev)); break;
+			case XCB_KEY_PRESS:        h_key_press((void *)(ev)); break;
+			case XCB_KEY_RELEASE:      h_key_release((void *)(ev)); break;
+			case XCB_BUTTON_PRESS:     h_button_press((void *)(ev)); break;
+			case XCB_BUTTON_RELEASE:   h_button_release((void *)(ev)); break;
+			case XCB_MOTION_NOTIFY:    h_motion_notify((void *)(ev)); break;
+			case XCB_MAPPING_NOTIFY:   h_mapping_notify((void *)(ev)); break;
 			}
 
 			free(ev);

@@ -6,7 +6,7 @@ include config.mk
 all: xgameoflife
 
 xgameoflife: xgameoflife.o
-	$(CC) $(LDFLAGS) -o xgameoflife xgameoflife.o $(LDLIBS)
+	$(CC) $(LDFLAGS) -o xgameoflife xgameoflife.o
 
 clean:
 	rm -f xgameoflife xgameoflife.o xgameoflife-$(VERSION).tar.gz

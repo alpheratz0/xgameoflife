@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2022 <alpheratz99@protonmail.com>
+	Copyright (C) 2022-2024 <alpheratz99@protonmail.com>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License version 2 as published by
@@ -630,9 +630,7 @@ h_button_press(xcb_button_press_event_t *ev)
 	int16_t width, height;
 	int16_t zoom;
 
-	if (running)
-		return;
-
+	running = 0;
 	zoom = 0;
 
 	switch (ev->detail) {

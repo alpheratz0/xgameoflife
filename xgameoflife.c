@@ -86,8 +86,8 @@ static int32_t columns;
 static int32_t cellsize;
 static uint8_t *cells[2];
 
-/* game status */
-static int running;
+/* game state */
+static int running, was_running;
 static xcb_point_t hovered;
 
 /* dragging */
@@ -630,6 +630,9 @@ h_button_press(xcb_button_press_event_t *ev)
 	int16_t width, height;
 	int16_t zoom;
 
+	if (running && ev->detail == XCB_BUTTON_INDEX_2)
+		was_running = 1;
+
 	running = 0;
 	zoom = 0;
 
@@ -668,6 +671,8 @@ static void
 h_button_release(xcb_button_release_event_t *ev)
 {
 	if (ev->detail == XCB_BUTTON_INDEX_2) {
+		if (was_running) running = 1;
+		was_running = 0;
 		dragging = 0;
 		xcb_change_window_attributes(conn, window, XCB_CW_CURSOR, &cursors[CURSOR_LEFT_PTR]);
 		xcb_flush(conn);

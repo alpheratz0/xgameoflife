@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2022-2024 <alpheratz99@protonmail.com>
+	Copyright (C) 2022-2025 <alpheratz99@protonmail.com>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License version 2 as published by
@@ -56,6 +56,9 @@
 #define NANOSECONDS_PER_SECOND (1000*1000*1000)
 #define FONT_HEIGHT 8
 #define INFO_BAR_HEIGHT 20
+
+#define XGAMEOFLIFE_WM_NAME "xgameoflife"
+#define XGAMEOFLIFE_WM_CLASS "xgameoflife\0xgameoflife\0"
 
 enum {
 	GC_ALIVE,
@@ -282,14 +285,15 @@ create_window(void)
 	/* set WM_NAME */
 	xcb_change_property(
 		conn, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_NAME,
-		XCB_ATOM_STRING, 8, strlen("xgameoflife"), "xgameoflife"
+		XCB_ATOM_STRING, 8, sizeof(XGAMEOFLIFE_WM_NAME) - 1,
+		XGAMEOFLIFE_WM_NAME
 	);
 
 	/* set WM_CLASS */
 	xcb_change_property(
 		conn, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
-		XCB_ATOM_STRING, 8, strlen("xgameoflife\0xgameoflife\0"),
-		"xgameoflife\0xgameoflife\0"
+		XCB_ATOM_STRING, 8, sizeof(XGAMEOFLIFE_WM_CLASS) - 1,
+		XGAMEOFLIFE_WM_CLASS
 	);
 
 	/* add WM_DELETE_WINDOW to WM_PROTOCOLS */

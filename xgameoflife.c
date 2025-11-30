@@ -383,8 +383,8 @@ count_neighbours_alive(int x, int y)
 
 	count = -get_cell(x, y);
 
-	for (dx = -1; dx < 2; ++dx)
-		for (dy = -1; dy < 2; ++dy)
+	for (dy = -1; dy < 2; ++dy)
+		for (dx = -1; dx < 2; ++dx)
 			count += get_cell(x + dx, y + dy);
 
 	return count;
@@ -396,8 +396,8 @@ advance_to_next_generation(void)
 	int x, y, n;
 	uint8_t cell, *tmp;
 
-	for (x = 0; x < columns; ++x) {
-		for (y = 0; y < rows; ++y) {
+	for (y = 0; y < rows; ++y) {
+		for (x = 0; x < columns; ++x) {
 			cell = get_cell(x, y);
 			n = count_neighbours_alive(x, y);
 

@@ -1,5 +1,9 @@
-Conway's game of life implemented in the C programming language
-using the xcb library.
+# xgameoflife
+
+Conway's game of life implemented in the C programming language using the xcb library.
+
+![xgameoflife running on archlinux](./media/xgameoflife.gif)
+
 For more information about it's usage check `man xgameoflife`.
 
 This program requires libxcb, libxcb-cursor, libxcb-xkb and

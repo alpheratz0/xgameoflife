@@ -34,8 +34,10 @@ const uint32_t text_color   =    0x000000;
 ///////////////////////////////////// MISC
 //////////////////////////////////////////
 const int generations_per_second =     12;
+const int max_generations_per_second = 60;
 const int default_columns        =    300;
 const int default_rows           =    300;
+const int max_board_dimension    =   5000;
 const int initial_cellsize       =     20;
 const int min_cellsize           =      5;
 const int max_cellsize           =     50;

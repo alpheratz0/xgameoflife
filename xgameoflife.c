@@ -33,6 +33,7 @@
 
 #define _XOPEN_SOURCE 500
 
+#include <ctype.h>
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
@@ -78,6 +79,10 @@ enum {
 /* x11 */
 static xcb_connection_t *conn;
 static xcb_window_t window;
+static xcb_pixmap_t backbuf;
+static uint8_t depth;
+static int16_t width, height;
+static xcb_atom_t wm_delete_window;
 static xcb_cursor_context_t *cctx;
 static xcb_key_symbols_t *ksyms;
 static xcb_cursor_t cursors[CURSOR_COUNT];
@@ -91,6 +96,8 @@ static uint8_t *cells[2];
 
 /* game state */
 static int running, was_running;
+static int should_quit;
+static int gps;
 static xcb_point_t hovered;
 
 /* dragging */
@@ -231,26 +238,6 @@ xfont(const char *name, uint32_t foreground, uint32_t background)
 }
 
 static void
-xsize(int16_t *width, int16_t *height)
-{
-	xcb_generic_error_t *error;
-	xcb_get_geometry_cookie_t cookie;
-	xcb_get_geometry_reply_t *reply;
-
-	cookie = xcb_get_geometry(conn, window);
-	reply = xcb_get_geometry_reply(conn, cookie, &error);
-
-	if (NULL != error)
-		die("xcb_get_geometry failed with error code: %d",
-				(int)(error->error_code));
-
-	*width = reply->width;
-	*height = reply->height;
-
-	free(reply);
-}
-
-static void
 create_window(void)
 {
 	xcb_screen_t *screen;
@@ -266,10 +253,13 @@ create_window(void)
 
 	ksyms = xcb_key_symbols_alloc(conn);
 	window = xcb_generate_id(conn);
+	depth = screen->root_depth;
+	width = 800;
+	height = 600;
 
 	xcb_create_window_aux(
 		conn, XCB_COPY_FROM_PARENT, window, screen->root,
-		0, 0, 800, 600, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+		0, 0, width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
 		screen->root_visual, XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK,
 		(const xcb_create_window_value_list_t []) {{
 			.background_pixel = dead_color,
@@ -278,9 +268,16 @@ create_window(void)
 			              XCB_EVENT_MASK_KEY_RELEASE |
 			              XCB_EVENT_MASK_BUTTON_PRESS |
 			              XCB_EVENT_MASK_BUTTON_RELEASE |
-			              XCB_EVENT_MASK_POINTER_MOTION
+			              XCB_EVENT_MASK_POINTER_MOTION |
+			              XCB_EVENT_MASK_STRUCTURE_NOTIFY
 		}}
 	);
+
+	/* all rendering goes to an off-screen pixmap that is
+	 * then copied to the window in a single operation,
+	 * this avoids flickering */
+	backbuf = xcb_generate_id(conn);
+	xcb_create_pixmap(conn, depth, backbuf, window, width, height);
 
 	/* set WM_NAME */
 	xcb_change_property(
@@ -297,9 +294,11 @@ create_window(void)
 	);
 
 	/* add WM_DELETE_WINDOW to WM_PROTOCOLS */
+	wm_delete_window = xatom("WM_DELETE_WINDOW");
+
 	xcb_change_property(
 		conn, XCB_PROP_MODE_REPLACE, window, xatom("WM_PROTOCOLS"),
-		XCB_ATOM_ATOM, 32, 1, (const xcb_atom_t []) { xatom("WM_DELETE_WINDOW") }
+		XCB_ATOM_ATOM, 32, 1, &wm_delete_window
 	);
 
 	/* load graphics */
@@ -335,6 +334,7 @@ destroy_window(void)
 	for (i = 0; i < CURSOR_COUNT; ++i)
 		xcb_free_cursor(conn, cursors[i]);
 
+	xcb_free_pixmap(conn, backbuf);
 	xcb_key_symbols_free(ksyms);
 	xcb_cursor_context_free(cctx);
 	xcb_disconnect(conn);
@@ -375,33 +375,27 @@ toggle_cell(int x, int y)
 	cells[0][y * columns + x] ^= 1;
 }
 
-static int
-count_neighbours_alive(int x, int y)
-{
-	int dx, dy;
-	int count;
-
-	count = -get_cell(x, y);
-
-	for (dy = -1; dy < 2; ++dy)
-		for (dx = -1; dx < 2; ++dx)
-			count += get_cell(x + dx, y + dy);
-
-	return count;
-}
-
 static void
 advance_to_next_generation(void)
 {
-	int x, y, n;
-	uint8_t cell, *tmp;
+	int x, y, xl, xr, n;
+	uint8_t *up, *mid, *down, *next, *tmp;
 
 	for (y = 0; y < rows; ++y) {
-		for (x = 0; x < columns; ++x) {
-			cell = get_cell(x, y);
-			n = count_neighbours_alive(x, y);
+		up = &cells[0][((y + rows - 1) % rows) * columns];
+		mid = &cells[0][y * columns];
+		down = &cells[0][((y + 1) % rows) * columns];
+		next = &cells[1][y * columns];
 
-			cells[1][y*columns+x] = n == 3 || (cell && n == 2);
+		for (x = 0; x < columns; ++x) {
+			xl = x == 0 ? columns - 1 : x - 1;
+			xr = x == columns - 1 ? 0 : x + 1;
+
+			n = up[xl] + up[x] + up[xr] +
+			    mid[xl] + mid[xr] +
+			    down[xl] + down[x] + down[xr];
+
+			next[x] = n == 3 || (mid[x] && n == 2);
 		}
 	}
 
@@ -436,9 +430,99 @@ save_board(void)
 }
 
 static void
+load_board_xg(FILE *fp)
+{
+	int x, y, c, r;
+	char header[64];
+
+	if (NULL == fgets(header, sizeof(header), fp)) {
+		create_board(default_columns, default_rows);
+		return;
+	}
+
+	if (sscanf(header, "%dx%d", &c, &r) == 2) {
+		if (c < 1 || r < 1 ||
+				c > max_board_dimension || r > max_board_dimension)
+			die("invalid board dimensions: %dx%d", c, r);
+
+		create_board(c, r);
+	} else {
+		create_board(default_columns, default_rows);
+
+		/* the first line was a cell, not a header */
+		if (sscanf(header, "%d,%d", &x, &y) == 2)
+			set_cell(x, y, 1);
+	}
+
+	while (fscanf(fp, "%d,%d\n", &x, &y) == 2)
+		set_cell(x, y, 1);
+}
+
+static void
+load_board_rle(FILE *fp)
+{
+	int c, w, h, x, y, ox, oy, run;
+	char line[1024];
+
+	/* skip comments and blank lines */
+	for (;;) {
+		c = fgetc(fp);
+
+		if (c == '#') {
+			if (NULL == fgets(line, sizeof(line), fp))
+				die("invalid rle file: missing header");
+		} else if (c == '\n' || c == '\r' || c == ' ' || c == '\t') {
+			continue;
+		} else {
+			ungetc(c, fp);
+			break;
+		}
+	}
+
+	if (fscanf(fp, "x = %d, y = %d", &w, &h) != 2)
+		die("invalid rle file: bad header");
+
+	if (w < 1 || h < 1 || w > max_board_dimension || h > max_board_dimension)
+		die("invalid rle file: bad pattern size: %dx%d", w, h);
+
+	/* skip the rest of the header line (rule, if any) */
+	if (NULL == fgets(line, sizeof(line), fp))
+		die("invalid rle file: missing pattern");
+
+	create_board(
+		w > default_columns ? w : default_columns,
+		h > default_rows ? h : default_rows
+	);
+
+	/* center the pattern in the initial viewport */
+	ox = (width / cellsize - w) / 2;
+	oy = (height / cellsize - h) / 2;
+
+	if (ox < 0) ox = 0;
+	if (oy < 0) oy = 0;
+
+	x = y = run = 0;
+
+	while ((c = fgetc(fp)) != EOF && c != '!') {
+		if (isdigit(c)) {
+			run = run * 10 + (c - '0');
+		} else if (c == 'b' || c == 'o') {
+			for (run = run > 0 ? run : 1; run > 0; --run, ++x)
+				if (c == 'o')
+					set_cell(ox + x, oy + y, 1);
+		} else if (c == '$') {
+			y += run > 0 ? run : 1;
+			x = run = 0;
+		} else if (!isspace(c)) {
+			die("invalid rle file: unexpected character: %c", c);
+		}
+	}
+}
+
+static void
 load_board(const char *path)
 {
-	int x, y;
+	int c;
 	FILE *fp;
 
 	if (strcmp(path, "-") == 0) {
@@ -447,17 +531,14 @@ load_board(const char *path)
 		die("failed to open file %s: %s", path, strerror(errno));
 	}
 
-	if (fscanf(fp, "%dx%d\n", &columns, &rows) != 2) {
-		columns = default_columns;
-		rows = default_rows;
+	/* rle files start with a comment or the "x = ..." header */
+	c = fgetc(fp);
+	ungetc(c, fp);
 
-		rewind(fp);
-	}
-
-	create_board(columns, rows);
-
-	while (fscanf(fp, "%d,%d\n", &x, &y) == 2)
-		set_cell(x, y, 1);
+	if (c == '#' || c == 'x')
+		load_board_rle(fp);
+	else
+		load_board_xg(fp);
 
 	if (fp != stdin)
 		fclose(fp);
@@ -477,7 +558,6 @@ render_scene(void)
 	int32_t vcolumns, vrows;
 	int32_t coloff, rowoff;
 	int32_t celloffx, celloffy;
-	int16_t width, height;
 
 	int32_t rectc;
 	static xcb_rectangle_t rects[8192];
@@ -486,12 +566,15 @@ render_scene(void)
 	xcb_point_t line[2];
 
 	xcb_rectangle_t box;
-	char text[200] = "* RUNNING";
+	char text[200];
 
 	rectc = 0;
 
-	xsize(&width, &height);
-	xcb_clear_area(conn, 0, window, 0, 0, width, height);
+	box.x = box.y = 0;
+	box.width = width;
+	box.height = height;
+
+	xcb_poly_fill_rectangle(conn, backbuf, graphics[GC_DEAD], 1, &box);
 
 	/* full visible columns & rows */
 	vcolumns = width / cellsize;
@@ -514,7 +597,7 @@ render_scene(void)
 
 				if (++rectc == (sizeof(rects) / sizeof(rects[0]))) {
 					xcb_poly_fill_rectangle(
-						conn, window, graphics[GC_ALIVE],
+						conn, backbuf, graphics[GC_ALIVE],
 						rectc, rects
 					);
 
@@ -525,13 +608,13 @@ render_scene(void)
 	}
 
 	if (rectc != 0)
-		xcb_poly_fill_rectangle(conn, window, graphics[GC_ALIVE], rectc, rects);
+		xcb_poly_fill_rectangle(conn, backbuf, graphics[GC_ALIVE], rectc, rects);
 
 #define DRAW_LINE(x0,y0,x1,y1) do {                             \
 	line[0].x = (x0); line[0].y = (y0);                         \
 	line[1].x = (x1); line[1].y = (y1);                         \
 	xcb_poly_line(                                              \
-		conn, XCB_COORD_MODE_ORIGIN, window,                    \
+		conn, XCB_COORD_MODE_ORIGIN, backbuf,                   \
 		graphics[GC_BORDER], 2, line                            \
 	);                                                          \
 } while (0)
@@ -544,20 +627,26 @@ render_scene(void)
 
 #undef DRAW_LINE
 
-	if (!running)
-		snprintf(text, sizeof(text), "* PAUSED (%hd, %hd)", hovered.x, hovered.y);
+	if (running)
+		snprintf(text, sizeof(text), "* RUNNING (%d gen/s)", gps);
+	else
+		snprintf(text, sizeof(text), "* PAUSED (%hd, %hd) (%d gen/s)",
+				hovered.x, hovered.y, gps);
 
 	box.x = 0;
 	box.y = height - INFO_BAR_HEIGHT;
 	box.width = width;
 	box.height = INFO_BAR_HEIGHT;
 
-	xcb_poly_fill_rectangle(conn, window, graphics[GC_BAR], 1, &box);
+	xcb_poly_fill_rectangle(conn, backbuf, graphics[GC_BAR], 1, &box);
 
-	xcb_image_text_8_checked(
-		conn, strlen(text), window, graphics[GC_TEXT], INFO_BAR_HEIGHT / 2,
+	xcb_image_text_8(
+		conn, strlen(text), backbuf, graphics[GC_TEXT], INFO_BAR_HEIGHT / 2,
 		height - (INFO_BAR_HEIGHT - FONT_HEIGHT) / 2, text
 	);
+
+	xcb_copy_area(conn, backbuf, window, graphics[GC_DEAD],
+			0, 0, 0, 0, width, height);
 
 	xcb_flush(conn);
 }
@@ -581,11 +670,24 @@ h_client_message(xcb_client_message_event_t *ev)
 {
 	/* check if the wm sent a delete window message */
 	/* https://www.x.org/docs/ICCCM/icccm.pdf */
-	if (ev->data.data32[0] == xatom("WM_DELETE_WINDOW")) {
-		destroy_window();
-		destroy_board();
-		exit(0);
-	}
+	if (ev->data.data32[0] == wm_delete_window)
+		should_quit = 1;
+}
+
+static void
+h_configure_notify(xcb_configure_notify_event_t *ev)
+{
+	if (ev->width == width && ev->height == height)
+		return;
+
+	width = ev->width;
+	height = ev->height;
+
+	xcb_free_pixmap(conn, backbuf);
+	backbuf = xcb_generate_id(conn);
+	xcb_create_pixmap(conn, depth, backbuf, window, width, height);
+
+	render_scene();
 }
 
 static void
@@ -614,6 +716,29 @@ h_key_press(xcb_key_press_event_t *ev)
 			render_scene();
 		}
 		break;
+	case XKB_KEY_c:
+		if (!running) {
+			memset(cells[0], 0, columns * rows);
+			render_scene();
+		}
+		break;
+	case XKB_KEY_plus:
+	case XKB_KEY_equal:
+		if (gps < max_generations_per_second) {
+			++gps;
+			render_scene();
+		}
+		break;
+	case XKB_KEY_minus:
+		if (gps > 1) {
+			--gps;
+			render_scene();
+		}
+		break;
+	case XKB_KEY_q:
+	case XKB_KEY_Escape:
+		should_quit = 1;
+		break;
 	}
 }
 
@@ -631,7 +756,6 @@ h_key_release(xcb_key_release_event_t *ev)
 static void
 h_button_press(xcb_button_press_event_t *ev)
 {
-	int16_t width, height;
 	int16_t zoom;
 
 	if (running && ev->detail == XCB_BUTTON_INDEX_2)
@@ -663,9 +787,9 @@ h_button_press(xcb_button_press_event_t *ev)
 	}
 
 	if (zoom) {
-		xsize(&width, &height);
-		offset.x = (offset.x * (cellsize + zoom) - zoom * (width / 2)) / cellsize;
-		offset.y = (offset.y * (cellsize + zoom) - zoom * (height / 2)) / cellsize;
+		/* keep the cell under the pointer fixed while zooming */
+		offset.x = (offset.x * (cellsize + zoom) - zoom * ev->event_x) / cellsize;
+		offset.y = (offset.y * (cellsize + zoom) - zoom * ev->event_y) / cellsize;
 		cellsize += zoom;
 		render_scene();
 	}
@@ -708,6 +832,22 @@ h_mapping_notify(xcb_mapping_notify_event_t *ev)
 		xcb_refresh_keyboard_mapping(ksyms, ev);
 }
 
+static void
+dispatch_event(xcb_generic_event_t *ev)
+{
+	switch (ev->response_type & ~0x80) {
+	case XCB_CLIENT_MESSAGE:   h_client_message((void *)(ev)); break;
+	case XCB_EXPOSE:           h_expose((void *)(ev)); break;
+	case XCB_KEY_PRESS:        h_key_press((void *)(ev)); break;
+	case XCB_KEY_RELEASE:      h_key_release((void *)(ev)); break;
+	case XCB_BUTTON_PRESS:     h_button_press((void *)(ev)); break;
+	case XCB_BUTTON_RELEASE:   h_button_release((void *)(ev)); break;
+	case XCB_MOTION_NOTIFY:    h_motion_notify((void *)(ev)); break;
+	case XCB_MAPPING_NOTIFY:   h_mapping_notify((void *)(ev)); break;
+	case XCB_CONFIGURE_NOTIFY: h_configure_notify((void *)(ev)); break;
+	}
+}
+
 int
 main(int argc, char **argv)
 {
@@ -715,6 +855,7 @@ main(int argc, char **argv)
 	const char *loadpath;
 
 	loadpath = NULL;
+	gps = generations_per_second;
 
 	while (++argv, --argc > 0) {
 		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
@@ -735,29 +876,34 @@ main(int argc, char **argv)
 	if (NULL == loadpath) create_board(default_columns, default_rows);
 	else load_board(loadpath);
 
-	while (1) {
-		blockstart();
-		while ((ev = xcb_poll_for_event(conn))) {
-			switch (ev->response_type & ~0x80) {
-			case XCB_CLIENT_MESSAGE:   h_client_message((void *)(ev)); break;
-			case XCB_EXPOSE:           h_expose((void *)(ev)); break;
-			case XCB_KEY_PRESS:        h_key_press((void *)(ev)); break;
-			case XCB_KEY_RELEASE:      h_key_release((void *)(ev)); break;
-			case XCB_BUTTON_PRESS:     h_button_press((void *)(ev)); break;
-			case XCB_BUTTON_RELEASE:   h_button_release((void *)(ev)); break;
-			case XCB_MOTION_NOTIFY:    h_motion_notify((void *)(ev)); break;
-			case XCB_MAPPING_NOTIFY:   h_mapping_notify((void *)(ev)); break;
+	while (!should_quit) {
+		if (running) {
+			blockstart();
+
+			while ((ev = xcb_poll_for_event(conn))) {
+				dispatch_event(ev);
+				free(ev);
 			}
 
-			free(ev);
-		}
+			if (should_quit)
+				break;
 
-		if (running) {
 			advance_to_next_generation();
 			render_scene();
-			blockwait(NANOSECONDS_PER_SECOND / generations_per_second);
+			blockwait(NANOSECONDS_PER_SECOND / gps);
+		} else {
+			/* don't burn the cpu while paused, block
+			 * until the next event arrives */
+			if (NULL == (ev = xcb_wait_for_event(conn)))
+				die("connection to the X server was lost");
+
+			dispatch_event(ev);
+			free(ev);
 		}
 	}
+
+	destroy_window();
+	destroy_board();
 
 	return 0;
 }

@@ -1,4 +1,4 @@
-.Dd July 14, 2023
+.Dd July 11, 2026
 .Dt XGAMEOFLIFE 6
 .Sh NAME
 .Nm xgameoflife
@@ -9,6 +9,9 @@
 .Op Ar file
 .Sh DESCRIPTION
 The game of life is a zero-player game created by John Conway.
+Boards can be loaded from files in the native xg format or in
+the run length encoded (RLE) pattern format, use - to read
+from the standard input.
 .Sh OPTIONS
 .Bl -tag -width indent
 .It Fl h
@@ -29,7 +32,13 @@ pause/resume the game with the space key
 .It
 advance to the next generation with the n key
 .It
+clear the board with the c key
+.It
+increase/decrease the simulation speed with the +/- keys
+.It
 save the current board with ctrl+s
+.It
+quit with the q or escape key
 .El
 .Sh SEE ALSO
 .Xr X 7
